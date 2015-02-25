@@ -1,17 +1,7 @@
+This repo is my personal remote to which I push work in progress for BrewPi/firmware.
+This repo might be subject to rebases, amend commits and force pushing.
 
-3 easy steps:
+I do not recommend using any commit from this repo, use the official repository instead:
+https://github.com/BrewPi/firmware
 
-# Setup
-
-Clone the `firmware` and `spark-firmware` repos to the same parent folder (e.g. 'brewpi').
-
-# Build
-
-```
-cd brewpi/firmware/spark
-make
-```
-
-This will build the binary to the file `target/brewpi.bin`.
-
-# Profit!
+This repo is for work in progress, anything that is finished is pull requested against BrewPi/firmware and merged after code review.
