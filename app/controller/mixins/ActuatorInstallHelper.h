@@ -24,28 +24,37 @@
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 #include "defaultDevices.h"
+#include <boost/tti/has_member_data.hpp>
 
-/*
- * A DriverActuator drivers another digital actuator, for example a PWM actuator can drive a pin actuator
- */
-class ActuatorDriver : public virtual Actuator
+BOOST_TTI_HAS_MEMBER_DATA(target)
+
+
+class ActuatorInstallHelperAdapter{
+public:
+    ActuatorInstallHelperAdapter() = default;
+protected:
+    ~ActuatorInstallHelperAdapter() = default; // should not be destructed through this base class
+
+public:
+    virtual Actuator * getBareActuator() = 0;
+    virtual bool installActuatorFinalTarget(ActuatorDigital * a) = 0;
+    virtual bool uninstallActuatorFinalTarget() = 0;
+};
+
+template< class T>
+class ActuatorInstallHelper : public ActuatorInstallHelperAdapter, public T
 {
-protected:
-    ActuatorDigital * target;
-
 public:
-    ActuatorDriver(ActuatorDigital * _target) : target(_target){}
+    ActuatorInstallHelper() = default;
 protected:
-    ~ActuatorDriver() = default; // should not be destructed through this base class
+    ~ActuatorInstallHelper() = default; // should not be destructed through this base class
 
-public:
-    virtual void update() override {
-        target->update();
-    }
+private:
+    // compile time constant to select the right implementation
+    using has_target = typename has_member_data_target<T, ActuatorDigital*>::value;
 
-    ActuatorDigital * getTarget(){ return target; }
-
-    Actuator * getBareActuator() final {
+    // Actuators driving a target recurse the pointer chain to find the bottom target
+    Actuator * getBareActuatorImpl(boost::mpl::true_) {
         if( target->getBareActuator() == target){
             return target; // my target is bottom
         }
@@ -53,8 +62,13 @@ public:
             return target->getBareActuator(); // my target is not bottom
         }
     }
+    // Actuators not driving a target return themselves
+    Actuator * getBareActuatorImpl(boost::mpl::false_) {
+        return this;
+    }
 
-    bool installActuatorFinalTarget(ActuatorDigital * a) final{
+    // Swap out the last actuator in the chain for driver actuators
+    bool installActuatorFinalTargetImpl(ActuatorDigital * a, boost::mpl::true_){
         if(target->getBareActuator() == target){
             // I am the lowest level driver. my target is the bottom target
             if(target == a){
@@ -71,8 +85,21 @@ public:
         }
     }
 
-    bool uninstallActuatorFinalTarget() final {
+    // Actuators that do not have a target just return false
+    bool installActuatorFinalTargetImpl(ActuatorDigital * a, boost::mpl::false_){
+        return false;
+    }
+
+public:
+    virtual Actuator * getBareActuator() final{
+        return getBareActuatorImpl(has_target());
+    }
+
+    virtual bool installActuatorFinalTarget(ActuatorDigital * a) final{
+        return installActuatorFinalTargetImpl(a, has_target());
+    }
+
+    virtual bool uninstallActuatorFinalTarget() final{
         return installActuatorFinalTarget(defaultActuator());
     }
 };
-

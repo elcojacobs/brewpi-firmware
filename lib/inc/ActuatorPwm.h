@@ -23,12 +23,11 @@
 #pragma once
 
 #include "ActuatorInterfaces.h"
-#include "ActuatorDriver.h"
 #include "Ticks.h"
 #include <stdint.h>
 #include "ControllerMixins.h"
 
-class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorRange, public ActuatorPwmMixin
 {
     private:
         temp_t         value;
@@ -43,6 +42,7 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
         int32_t        period_ms;
         temp_t         minVal;
         temp_t         maxVal;
+        ActuatorDigital * target;
 
     public:
         ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
@@ -72,10 +72,10 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
             return period_ms / 1000; // return in seconds, same as set period
         }
 
-        void setTarget(ActuatorDigital * t)
+        /* void setTarget(ActuatorDigital * t)
         {
             target = t;
-        }
+        } */
 
         void setPeriod(uint16_t sec){
             period_ms = int32_t(sec) * 1000;

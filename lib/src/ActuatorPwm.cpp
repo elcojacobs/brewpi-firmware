@@ -3,8 +3,7 @@
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
-ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
-    ActuatorDriver(_target) {
+ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) : target(_target) {
     periodStartTime = ticks.millis();
     periodLate = 0;
     dutyLate = 0;

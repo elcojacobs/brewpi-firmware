@@ -24,17 +24,16 @@
 
 #include <stdint.h>
 #include "ActuatorInterfaces.h"
-#include "ActuatorDriver.h"
 #include "Ticks.h"
 #include "ControllerMixins.h"
 
-class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
     ActuatorTimeLimited(ActuatorDigital * _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
-            ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
+            ticks_seconds_t   _maxOnTime = UINT16_MAX)
     {
         minOnTime  = _minOnTime;
         minOffTime = _minOffTime;
@@ -69,7 +68,8 @@ private:
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;
     ticks_seconds_t        toggleTime;
-    // shadow copy to prevent sending unnecessary updates to target
+    ActuatorDigital *      target;
+    // state shadow copy to prevent sending unnecessary updates to target
     bool                   state;
 
     friend class ActuatorTimeLimitedMixin;
