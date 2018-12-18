@@ -33,8 +33,8 @@ ActuatorPwmWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
-        setValue(temp_to_string(ptr->value(), 1).c_str());
-        setSetting(temp_to_string(ptr->setting(), 1).c_str());
+        setValue(to_string_dec(ptr->value(), 1).c_str());
+        setSetting(to_string_dec(ptr->setting(), 1).c_str());
 
         char icons[2];
         switch (ptr->targetState()) {
