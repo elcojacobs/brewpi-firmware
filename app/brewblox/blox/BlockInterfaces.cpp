@@ -5,6 +5,7 @@
 #include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
 #include "OneWireDevice.h"
+#include "Pid.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
@@ -82,6 +83,13 @@ const obj_type_t
 interfaceIdImpl<ActuatorPwm>()
 {
     return BrewbloxFieldOptions_LinkType_ActuatorPwmLink;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<Pid>()
+{
+    return BrewbloxFieldOptions_LinkType_PidLink;
 }
 
 } // end namespace cbox

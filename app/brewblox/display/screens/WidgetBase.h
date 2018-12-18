@@ -46,5 +46,15 @@ public:
         wrapper.setEnabled(enabled);
     }
 
+    static void setAndEnable(D4D_OBJECT* obj, const char* txt)
+    {
+        if (txt) {
+            D4D_SetText(obj, txt);
+            D4D_EnableObject(obj, true);
+            return;
+        }
+        D4D_EnableObject(obj, false);
+    }
+
     virtual void update() = 0;
 };

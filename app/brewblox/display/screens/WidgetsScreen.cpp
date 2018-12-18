@@ -20,6 +20,7 @@
 #include "WidgetsScreen.h"
 #include "ActuatorPwmWidget.h"
 #include "BrewBlox.h"
+#include "PidWidget.h"
 #include "SetpointSensorWidget.h"
 #include "TempSensorWidget.h"
 #include "blox/DisplaySettingsBlock.h"
@@ -126,6 +127,7 @@ WidgetsScreen::loadSettings()
         case blox_DisplaySettings_Widget_ActuatorAnalog_tag:
             break;
         case blox_DisplaySettings_Widget_Pid_tag:
+            widgets.push_back(std::make_unique<PidWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.Pid)));
             break;
         default:
             break;

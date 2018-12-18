@@ -19,8 +19,6 @@
 
 #include "ProcessValueWidgetBase.h"
 #include "BrewBlox.h"
-#include "ProcessValue.h"
-#include "Temperature.h"
 #include "d4d.hpp"
 
 ProcessValueWidgetBase::ProcessValueWidgetBase(WidgetWrapper& myWrapper)
