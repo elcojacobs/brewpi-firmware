@@ -201,16 +201,21 @@ public:
         return actuator.value();
     }
 
-    virtual bool valid() const override final
+    virtual bool valueValid() const override final
     {
-        return actuator.valid();
+        return actuator.valueValid();
     }
 
-    virtual void valid(bool v) override final
+    virtual bool settingValid() const override final
     {
-        auto old = actuator.valid();
-        actuator.valid(v);
-        if (old != actuator.valid()) {
+        return actuator.settingValid();
+    }
+
+    virtual void settingValid(bool v) override final
+    {
+        auto old = actuator.settingValid();
+        actuator.settingValid(v);
+        if (old != actuator.settingValid()) {
             // update constraints state in case setting valid has changed the limits inside the actuator itself
             constrain(actuator.setting());
         }

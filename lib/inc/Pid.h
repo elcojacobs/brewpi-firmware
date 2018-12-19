@@ -196,7 +196,7 @@ private:
     void active(bool state)
     {
         if (auto ptr = m_outputPtr()) {
-            ptr->valid(state);
+            ptr->settingValid(state);
         }
         m_active = state;
     }

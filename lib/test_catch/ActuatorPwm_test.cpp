@@ -325,7 +325,7 @@ SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
 
         CHECK(mock.state() == State::Active);
 
-        pwm.valid(false);
+        pwm.settingValid(false);
 
         CHECK(mock.state() == State::Inactive);
     }
@@ -436,7 +436,7 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
         AND_WHEN("A PWM is set to invalid, its requested value is zero in the balancer")
         {
             constrainedPwm1.setting(50);
-            constrainedPwm1.valid(false);
+            constrainedPwm1.settingValid(false);
 
             constrainedPwm1.update();
             constrainedPwm2.update();

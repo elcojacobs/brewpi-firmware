@@ -70,7 +70,7 @@ public:
         return m_value;
     }
 
-    virtual bool valid() const override final
+    virtual bool valueValid() const override final
     {
         if (auto targetPtr = m_target()) {
             if (auto refPtr = m_reference()) {
@@ -80,10 +80,15 @@ public:
         return false;
     }
 
-    virtual void valid(bool v) override final
+    virtual bool settingValid() const override final
+    {
+        return valueValid();
+    }
+
+    virtual void settingValid(bool v) override final
     {
         if (auto targetPtr = m_target()) {
-            targetPtr->valid(v);
+            targetPtr->settingValid(v);
         }
     }
 
@@ -105,8 +110,8 @@ public:
         if (auto targetPtr = m_target()) {
             if (auto refPtr = m_reference()) {
                 if (refPtr->valid()) {
-                    targetPtr->valid(true); // try to make target valid
-                    if (targetPtr->valid()) {
+                    targetPtr->settingValid(true); // try to make target valid
+                    if (targetPtr->settingValid()) {
                         referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
                         targetPtr->setting(referenceValue + m_setting);
                         targetValue = targetPtr->value();
@@ -115,7 +120,7 @@ public:
                     }
                 }
             }
-            targetPtr->valid(false);
+            targetPtr->settingValid(false);
         }
 
         m_value = 0;
