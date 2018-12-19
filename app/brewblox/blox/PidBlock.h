@@ -102,16 +102,26 @@ public:
         if (iface == blox_Pid_msgid) {
             return this; // me!
         }
-        if (iface == cbox::interfaceId<Pid>()) {
-            // return the member that implements the interface in this case
-            Pid* ptr = &pid;
-            return ptr;
-        }
         return nullptr;
     }
 
     Pid& get()
     {
         return pid;
+    }
+
+    const Pid& get() const
+    {
+        return pid;
+    }
+
+    const auto& getInputLookup() const
+    {
+        return input;
+    }
+
+    const auto& getOutputLookup() const
+    {
+        return input;
     }
 };

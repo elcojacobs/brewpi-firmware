@@ -97,7 +97,7 @@ PidWidget::PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
           wrapper.scheme,       ///< Pointer on used color scheme.
           &iconsData,           ///< Pointer on runtime object data.
       }
-    , lookup(brewbloxBox().makeCboxPtr<Pid>(id))
+    , lookup(brewbloxBox().makeCboxPtr<PidBlock>(id))
 {
     wrapper.addChildren({&inputTarget, &inputValue, &outputTarget, &outputValue, &icons});
     wrapper.setEnabled(D4D_FALSE); // start widget disabled
@@ -108,7 +108,6 @@ PidWidget::drawPidRect(const fp12_t& v, D4D_COOR yPos)
 {
     D4D_COOR middle = wrapper.x + wrapper.cx / 2;
     D4D_POINT startP;
-    D4D_POINT endP;
     int8_t lenMax = int8_t(wrapper.cx / 2 - 5);
 
     int8_t lenP = int8_t(v) / 2;
@@ -135,13 +134,35 @@ void
 PidWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
+        auto pid = ptr->get();
+        auto inputLookup = ptr->getInputLookup();
+        auto outputLookup = ptr->getOutputLookup();
         setConnected();
-        setInputTarget(temp_to_string(ptr->inputSetting(), 1).c_str());
-        setInputValue(temp_to_string(ptr->inputValue(), 1).c_str());
-        setOutputTarget(to_string_dec(ptr->outputSetting(), 1).c_str());
-        setOutputValue(to_string_dec(ptr->outputValue(), 1).c_str());
+        auto input = inputLookup.const_lock();
+        if (input && input->valueValid()) {
+            setInputValue(temp_to_string(input->value(), 1).c_str());
+        } else {
+            setInputValue(nullptr);
+        }
+        if (input && input->settingValid()) {
+            setInputTarget(temp_to_string(input->setting(), 1).c_str());
+        } else {
+            setInputTarget(nullptr);
+        }
 
-        drawPidRects(*ptr);
+        auto output = outputLookup.const_lock();
+        if (output && output->valueValid()) {
+            setInputValue(temp_to_string(output->value(), 1).c_str());
+        } else {
+            setInputValue(nullptr);
+        }
+        if (output && output->settingValid()) {
+            setInputTarget(temp_to_string(output->setting(), 1).c_str());
+        } else {
+            setInputTarget(nullptr);
+        }
+
+        drawPidRects(pid);
 
         char icons[2];
 

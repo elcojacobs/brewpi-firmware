@@ -78,18 +78,4 @@ interfaceIdImpl<OneWireDevice>()
     return BrewbloxFieldOptions_LinkType_OneWireDeviceLink;
 }
 
-template <>
-const obj_type_t
-interfaceIdImpl<ActuatorPwm>()
-{
-    return BrewbloxFieldOptions_LinkType_ActuatorPwmLink;
-}
-
-template <>
-const obj_type_t
-interfaceIdImpl<Pid>()
-{
-    return BrewbloxFieldOptions_LinkType_PidLink;
-}
-
 } // end namespace cbox

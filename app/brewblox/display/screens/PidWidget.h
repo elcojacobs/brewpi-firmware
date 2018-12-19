@@ -18,8 +18,8 @@
  */
 
 #pragma once
-#include "Pid.h"
 #include "WidgetBase.h"
+#include "blox/PidBlock.h"
 #include "cbox/CboxPtr.h"
 #include "d4d.hpp"
 
@@ -57,7 +57,7 @@ private:
     D4D_OBJECT outputValue;
     D4D_OBJECT icons;
 
-    cbox::CboxPtr<Pid> lookup;
+    cbox::CboxPtr<PidBlock> lookup;
 
 public:
     PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);

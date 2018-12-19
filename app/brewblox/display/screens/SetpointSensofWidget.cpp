@@ -34,14 +34,14 @@ SetpointSensorWidget::update()
         setConnected();
 
         char icons[3] = {0};
-        if (ptr->sensorValid()) {
+        if (ptr->valueValid()) {
             setValue(temp_to_string(ptr->value(), 1).c_str());
             icons[0] = '\x29';
         } else {
             setValue(nullptr);
             icons[0] = '\x2B';
         }
-        if (ptr->setpointValid()) {
+        if (ptr->settingValid()) {
             setSetting(temp_to_string(ptr->setting(), 1).c_str());
             icons[1] = '\x2A';
         } else {
