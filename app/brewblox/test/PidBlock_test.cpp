@@ -61,7 +61,7 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
 
     blox::SetpointSimple newSetpoint;
     newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
-    newSetpoint.set_valid(true);
+    newSetpoint.set_enabled(true);
     testBox.put(newSetpoint);
 
     testBox.processInput();

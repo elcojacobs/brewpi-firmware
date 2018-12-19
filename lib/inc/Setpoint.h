@@ -34,7 +34,7 @@ public:
 class SetpointSimple final : public Setpoint {
 private:
     temp_t m_setting = 0;
-    bool m_valid = false;
+    bool m_enabled = false;
 
 public:
     SetpointSimple()
@@ -43,7 +43,7 @@ public:
 
     SetpointSimple(temp_t _value)
         : m_setting(_value)
-        , m_valid(true)
+        , m_enabled(true)
     {
     }
     ~SetpointSimple() = default;
@@ -56,16 +56,16 @@ public:
     virtual void setting(const temp_t& val) override final
     {
         m_setting = val;
-        m_valid = true;
+        m_enabled = true;
     }
 
     virtual bool valid() const override final
     {
-        return m_valid;
+        return m_enabled;
     }
 
     virtual void valid(bool v) override final
     {
-        m_valid = v;
+        m_enabled = v;
     }
 };

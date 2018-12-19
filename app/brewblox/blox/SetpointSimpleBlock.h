@@ -20,7 +20,7 @@ public:
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetpointSimple_fields, blox_SetpointSimple_size);
         if (result == cbox::CboxError::OK) {
             setpoint.setting(cnl::wrap<temp_t>(newData.setting));
-            setpoint.valid(newData.valid);
+            setpoint.valid(newData.enabled);
         }
         return result;
     }
@@ -29,7 +29,7 @@ public:
     {
         blox_SetpointSimple message = blox_SetpointSimple_init_zero;
         message.setting = cnl::unwrap(setpoint.setting());
-        message.valid = setpoint.valid();
+        message.enabled = setpoint.valid();
 
         return streamProtoTo(out, &message, blox_SetpointSimple_fields, blox_SetpointSimple_size);
     }
