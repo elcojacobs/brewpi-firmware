@@ -177,7 +177,7 @@ public:
         m_unconstrained = actuator.setting();
 
         // then set it to the constrained value
-        if (actuator.valid()) {
+        if (actuator.settingValid()) {
             actuator.setting(constrain(m_unconstrained));
         } else {
             constrain(0);
@@ -186,7 +186,7 @@ public:
 
     void update()
     {
-        if (actuator.valid()) {
+        if (actuator.settingValid()) {
             setting(m_unconstrained); // re-apply constraints
         }
     }

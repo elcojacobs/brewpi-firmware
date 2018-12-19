@@ -46,12 +46,6 @@ private:
     integral_t m_integral = 0;
     derivative_t m_derivative = 0;
 
-    in_t m_inputSetting = 0;
-    in_t m_inputValue = 0;
-
-    out_t m_outputSetting = 0;
-    out_t m_outputValue = 0;
-
     uint8_t m_inputFailureCount = 0;
 
     // settings
@@ -170,26 +164,6 @@ public:
     auto active() const
     {
         return m_active;
-    }
-
-    auto inputSetting() const
-    {
-        return m_inputSetting;
-    }
-
-    auto inputValue() const
-    {
-        return m_inputValue;
-    }
-
-    auto outputSetting() const
-    {
-        return m_outputSetting;
-    }
-
-    auto outputValue() const
-    {
-        return m_outputValue;
     }
 
 private:

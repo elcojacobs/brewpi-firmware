@@ -326,7 +326,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
             }
         }
         CHECK(i == 2010);
-        CHECK(actuator->valid() == false);
+        CHECK(actuator->settingValid() == false);
 
         AND_WHEN("The input becomes valid again, the pid and actuatore become active again")
         {
@@ -334,7 +334,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
             pid.update();
 
             CHECK(pid.active() == true);
-            CHECK(actuator->valid() == true);
+            CHECK(actuator->settingValid() == true);
         }
     }
 }
@@ -377,14 +377,14 @@ SCENARIO("PID Test with offset actuator", "[pid]")
     {
         CHECK(actuator->setting() == Approx(4.0).margin(0.01));
         CHECK(targetSetpoint->setting() == Approx(71.0).margin(0.01));
-        CHECK(actuator->valid() == true);
+        CHECK(actuator->settingValid() == true);
     }
 
     WHEN("The PID input sensor becomes invalid")
     {
         referenceSensor->connected(false);
         pid.update();
-        CHECK(actuator->valid() == false);
+
         THEN("The target setpoint is set to invalid after 10 failed updates")
         {
             for (uint8_t i = 0; i < 10; ++i) {

@@ -39,6 +39,8 @@ private:
     const std::function<std::shared_ptr<SetpointSensorPair>()> m_reference;
     value_t m_setting = 0;
     value_t m_value = 0;
+    bool m_settingValid = false;
+    bool m_valueValid = false;
     SettingOrValue m_selectedReference = SettingOrValue::SETTING;
 
 public:
@@ -72,17 +74,12 @@ public:
 
     virtual bool valueValid() const override final
     {
-        if (auto targetPtr = m_target()) {
-            if (auto refPtr = m_reference()) {
-                return targetPtr->valid() && refPtr->valid();
-            }
-        }
-        return false;
+        return m_valueValid;
     }
 
     virtual bool settingValid() const override final
     {
-        return valueValid();
+        return m_settingValid;
     }
 
     virtual void settingValid(bool v) override final
@@ -104,25 +101,37 @@ public:
 
     void update()
     {
-        auto targetValue = value_t(0);
-        auto referenceValue = value_t(0);
+        m_valueValid = false;
+        m_settingValid = false;
 
         if (auto targetPtr = m_target()) {
             if (auto refPtr = m_reference()) {
-                if (refPtr->valid()) {
-                    targetPtr->settingValid(true); // try to make target valid
-                    if (targetPtr->settingValid()) {
-                        referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
-                        targetPtr->setting(referenceValue + m_setting);
-                        targetValue = targetPtr->value();
-                        m_value = targetValue - referenceValue;
+                if (m_selectedReference == SettingOrValue::SETTING) {
+                    if (refPtr->settingValid()) {
+                        targetPtr->settingValid(true); // try to make target valid
+                        targetPtr->setting(refPtr->setting() + m_setting);
+                        m_settingValid = true;
+                        if (targetPtr->valueValid()) {
+                            m_value = targetPtr->value() - refPtr->setting();
+                            m_valueValid = true;
+                        }
+                        return;
+                    }
+                } else {
+                    if (refPtr->valueValid()) {
+                        targetPtr->settingValid(true); // try to make target valid
+                        targetPtr->setting(refPtr->value() + m_setting);
+                        m_settingValid = true;
+                        if (targetPtr->valueValid()) {
+                            m_value = targetPtr->value() - refPtr->value();
+                            m_valueValid = true;
+                        }
                         return;
                     }
                 }
             }
             targetPtr->settingValid(false);
+            m_value = 0;
         }
-
-        m_value = 0;
     }
 };

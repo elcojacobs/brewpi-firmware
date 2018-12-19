@@ -43,9 +43,4 @@ public:
     virtual bool settingValid() const = 0;
     // writes valid flag of setting
     virtual void settingValid(bool v) = 0;
-
-    bool valid() const
-    {
-        return valueValid() && settingValid();
-    }
 };
