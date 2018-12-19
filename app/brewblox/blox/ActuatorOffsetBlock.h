@@ -29,7 +29,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorOffset newData;
+        blox_ActuatorOffset newData = blox_ActuatorOffset_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorOffset_fields, blox_ActuatorOffset_size);
         if (result == cbox::CboxError::OK) {
             target.setId(newData.targetId);
@@ -71,7 +71,7 @@ public:
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorOffset persisted = blox_ActuatorOffset_init_default;
+        blox_ActuatorOffset persisted = blox_ActuatorOffset_init_zero;
 
         persisted.targetId = target.getId();
         persisted.referenceId = reference.getId();
@@ -86,6 +86,7 @@ public:
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
         actuator.update();
+        constrained.update();
         return now + 1000;
     }
 

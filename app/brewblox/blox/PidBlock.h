@@ -32,7 +32,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_Pid newData;
+        blox_Pid newData = blox_Pid_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_Pid_fields, blox_Pid_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
@@ -50,7 +50,7 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         FieldTags stripped;
-        blox_Pid message = {0};
+        blox_Pid message = blox_Pid_init_zero;
         message.inputId = input.getId();
         message.outputId = output.getId();
 
@@ -108,7 +108,7 @@ public:
     virtual cbox::CboxError
     streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_Pid message = {0};
+        blox_Pid message = blox_Pid_init_zero;
         message.inputId = input.getId();
         message.outputId = output.getId();
         message.filter = blox_Pid_FilterChoice(pid.filterChoice());

@@ -26,7 +26,7 @@ public
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_SetpointSensorPair newData;
+        blox_SetpointSensorPair newData = blox_SetpointSensorPair_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
@@ -38,8 +38,8 @@ public
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
+        blox_SetpointSensorPair message = blox_SetpointSensorPair_init_zero;
         FieldTags stripped;
-        blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
         if (pair.valueValid()) {
@@ -60,7 +60,7 @@ public
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointSensorPair message;
+        blox_SetpointSensorPair message = blox_SetpointSensorPair_init_zero;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
 

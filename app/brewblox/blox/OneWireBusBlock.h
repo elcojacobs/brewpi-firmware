@@ -62,7 +62,7 @@ public:
      */
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_OneWireBus message = {0};
+        blox_OneWireBus message = blox_OneWireBus_init_zero;
         message.command = command;
         message.address.funcs.encode = nullptr;
         message.address.arg = &bus;
@@ -98,7 +98,7 @@ public:
      */
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_OneWireBus message;
+        blox_OneWireBus message = blox_OneWireBus_init_zero;
 
         cbox::CboxError res = streamProtoFrom(dataIn, &message, blox_OneWireBus_fields, std::numeric_limits<size_t>::max());
         /* if no errors occur, write new settings to wrapped object */

@@ -16,18 +16,18 @@ public:
     virtual cbox::CboxError
     streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_Mutex newData = blox_Mutex_init_default;
+        blox_Mutex newData = blox_Mutex_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Mutex_fields, blox_Mutex_size);
         if (result == cbox::CboxError::OK) {
             m_mutex.differentActuatorWait(newData.differentActuatorWait);
-                }
+        }
         return result;
     }
 
     virtual cbox::CboxError
     streamTo(cbox::DataOut& out) const override final
     {
-        blox_Mutex message = blox_Mutex_init_default;
+        blox_Mutex message = blox_Mutex_init_zero;
         message.differentActuatorWait = m_mutex.differentActuatorWait();
 
         return streamProtoTo(out, &message, blox_Mutex_fields, blox_Mutex_size);

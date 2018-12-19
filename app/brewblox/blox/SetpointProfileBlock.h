@@ -50,7 +50,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_SetpointProfile newData;
+        blox_SetpointProfile newData = blox_SetpointProfile_init_zero;
         std::vector<Point> newPoints;
         newData.points.funcs.decode = &streamPointsIn;
         newData.points.arg = &newPoints;
@@ -63,7 +63,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointProfile message;
+        blox_SetpointProfile message = blox_SetpointProfile_init_zero;
         message.points.funcs.encode = &streamPointsOut;
         message.points.arg = const_cast<std::vector<Point>*>(&profile.points());
         cbox::CboxError result = streamProtoTo(out, &message, blox_SetpointProfile_fields, std::numeric_limits<size_t>::max() - 1);

@@ -147,10 +147,9 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         auto decoded = blox::ActuatorOffset();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "targetId: 102 targetValid: true referenceId: 105 referenceValid: true "
+        CHECK(decoded.ShortDebugString() == "targetId: 102 referenceId: 105 "
                                             "setting: 49152 value: 4096 " // setting is 12 (setpoint difference), value is 1 (21 - 20)
-                                            "constrainedBy { unconstrained: 49152 } "
-                                            "valid: true");
+                                            "constrainedBy { unconstrained: 49152 }");
     }
 
     // read reference pair
@@ -161,9 +160,8 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         auto decoded = blox::SetpointSensorPair();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 setpointValid: true sensorValid: true "
-                                            "setpointValue: 131072 sensorValue: 86016 " // 32, 21 (setpoint adjusted to 20 + 12)
-                                            "valid: true");
+        CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 "
+                                            "setpointValue: 131072 sensorValue: 86016"); // 32, 21 (setpoint adjusted to 20 + 12)
     }
 
     // read target pair
@@ -174,8 +172,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         auto decoded = blox::SetpointSensorPair();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "setpointId: 104 sensorId: 103 setpointValid: true sensorValid: true "
-                                            "setpointValue: 81920 sensorValue: 110592 " // 20, 27 (unaffected)
-                                            "valid: true");
+        CHECK(decoded.ShortDebugString() == "setpointId: 104 sensorId: 103 "
+                                            "setpointValue: 81920 sensorValue: 110592"); // 20, 27 (unaffected)
     }
 }

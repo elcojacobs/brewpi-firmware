@@ -34,7 +34,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorPwm newData;
+        blox_ActuatorPwm newData = blox_ActuatorPwm_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
         if (result == cbox::CboxError::OK) {
             actuator.setId(newData.actuatorId);
@@ -71,7 +71,7 @@ public:
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPwm persisted = blox_ActuatorPwm_init_default;
+        blox_ActuatorPwm persisted = blox_ActuatorPwm_init_zero;
         persisted.actuatorId = actuator.getId();
         persisted.period = pwm.period();
         persisted.setting = cnl::unwrap(constrained.setting());

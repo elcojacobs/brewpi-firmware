@@ -47,7 +47,7 @@ public:
     virtual cbox::CboxError
     streamTo(cbox::DataOut& out) const override final
     {
-        blox_Balancer message;
+        blox_Balancer message = blox_Balancer_init_zero;
         message.clients.funcs.encode = streamBalancedActuators;
         message.clients.arg = const_cast<Balancer_t*>(&balancer); // arg is not const in message, but it is in callback
 

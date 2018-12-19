@@ -3,6 +3,7 @@
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorAnalogMock.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/ActuatorAnalogMock.pb.h"
 
 class ActuatorAnalogMockBlock : public Block<blox_ActuatorAnalogMock_msgid> {
@@ -17,7 +18,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorAnalogMock newData;
+        blox_ActuatorAnalogMock newData = blox_ActuatorAnalogMock_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
         if (result == cbox::CboxError::OK) {
             constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
@@ -56,7 +57,7 @@ public:
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorAnalogMock message;
+        blox_ActuatorAnalogMock message = blox_ActuatorAnalogMock_init_zero;
         message.setting = cnl::unwrap(constrained.setting());
 
         message.minSetting = cnl::unwrap(actuator.minSetting());

@@ -3,6 +3,7 @@
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorDigitalConstraintsProto.h"
 #include "ActuatorPin.h"
+#include "FieldTags.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorPin.pb.h"
 #include <cstdint>
@@ -24,7 +25,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorPin newData;
+        blox_ActuatorPin newData = blox_ActuatorPin_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
             actuator.invert(newData.invert);
@@ -36,7 +37,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPin message = blox_ActuatorPin_init_default;
+        blox_ActuatorPin message = blox_ActuatorPin_init_zero;
         FieldTags stripped;
 
         auto state = actuator.state();

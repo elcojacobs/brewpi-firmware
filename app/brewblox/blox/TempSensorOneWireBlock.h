@@ -20,7 +20,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_TempSensorOneWire newData;
+        blox_TempSensorOneWire newData = blox_TempSensorOneWire_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
@@ -32,7 +32,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_TempSensorOneWire message;
+        blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
         message.address = sensor.getAddress();
         message.offset = cnl::unwrap(sensor.getCalibration());
         message.valid = sensor.valid();

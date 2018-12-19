@@ -39,7 +39,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_Ticks newData;
+        blox_Ticks newData = blox_Ticks_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Ticks_fields, blox_Ticks_size);
         if (result == cbox::CboxError::OK) {
             ticks.setNow(newData.secondsSinceEpoch);
@@ -49,7 +49,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_Ticks message;
+        blox_Ticks message = blox_Ticks_init_zero;
         message.secondsSinceEpoch = ticks.getNow();
         message.millisSinceBoot = ticks.millis();
 

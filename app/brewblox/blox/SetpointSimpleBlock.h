@@ -16,7 +16,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_SetpointSimple newData;
+        blox_SetpointSimple newData = blox_SetpointSimple_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetpointSimple_fields, blox_SetpointSimple_size);
         if (result == cbox::CboxError::OK) {
             setpoint.setting(cnl::wrap<temp_t>(newData.setting));
@@ -27,7 +27,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointSimple message;
+        blox_SetpointSimple message = blox_SetpointSimple_init_zero;
         message.setting = cnl::unwrap(setpoint.setting());
         message.valid = setpoint.valid();
 

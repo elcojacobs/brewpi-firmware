@@ -20,8 +20,10 @@ public:
 
     void copyToMessage(uint16_t* dest, pb_size_t& count, const pb_size_t& maxCount)
     {
+        count = 0;
         for (auto it = m_tags.cbegin(); it != m_tags.cend() && it < m_tags.cbegin() + maxCount; ++it) {
             *(dest++) = *it;
+            ++count;
         }
     }
 
