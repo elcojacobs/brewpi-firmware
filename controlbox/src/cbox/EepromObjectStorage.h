@@ -359,7 +359,7 @@ private:
                 continue;
             }
             if (usedSize) {
-                block.setLength(objectSize);
+                block.reduceLength(objectSize);
             }
 
             return block;
@@ -498,6 +498,9 @@ private:
             uint16_t disposedDataLength1 = disposedBlock1.available();
 
             disposedBlock1.spool();
+            if (!reader.hasNext()) {
+                return false; // end of EEPROM, no next block
+            }
 
             uint8_t nextBlockType = reader.peek();
             if (nextBlockType == BlockType::disposed_block) {
