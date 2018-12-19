@@ -18,7 +18,7 @@ mkfile_dir := $(dir $(mkfile_path))
 remove_slash = $(patsubst %/,%,$1)
 SOURCE_PATH = $(call remove_slash,$(abspath $(mkfile_dir)/../../..))
 
-BUILD_PATH=$(TARGETDIR)test/
+BUILD_PATH=$(TARGETDIR)test
 # Define the target directories. Nest 2 levels deep since we also include
 # sources from libraries via ../core-common-lib
 
@@ -108,9 +108,7 @@ CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 CPPFLAGS += -std=gnu++14
 CFLAGS += -pthread
 
-ifeq ($(PLATFORM_ID),3)
-include ../../build/checkers.mk # sanitizer and gcov
-endif
+include $(SOURCE_PATH)/build/checkers.mk # sanitizer and gcov
 
 # the following warnings can help find opportunities for impromevent in virtual functions
 # Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
@@ -120,8 +118,8 @@ endif
 # CPPFLAGS += -Wsuggest-final-methods
 
 # include google protobuf dependencies
-CPPFLAGS += `pkg-config --cflags protobuf`
-LDFLAGS += `pkg-config --libs protobuf` 
+CPPFLAGS += $(shell pkg-config --cflags protobuf)
+LDFLAGS += $(shell pkg-config --libs protobuf)
 
 # don't generate warnings for system headers
 CFLAGS += -Wno-system-headers
@@ -142,6 +140,8 @@ ALLDEPS += $(addprefix $(BUILD_PATH), $(CPPSRC:.cpp=.o.d))
 all: runner
 
 runner: $(TARGETDIR)$(TARGET)
+
+$(info ${LDFLAGS})
 
 $(TARGETDIR)$(TARGET) : $(BUILD_PATH) $(ALLOBJ)
 	@echo Building target: $@

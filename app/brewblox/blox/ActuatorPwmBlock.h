@@ -5,6 +5,7 @@
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorPwm.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/ActuatorPwm.pb.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
@@ -46,14 +47,24 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPwm message;
+        blox_ActuatorPwm message = blox_ActuatorPwm_init_zero;
+        FieldTags stripped;
         message.actuatorId = actuator.getId();
-        message.actuatorValid = pwm.valid();
         message.period = pwm.period();
-        message.setting = cnl::unwrap(constrained.setting());
-        message.value = cnl::unwrap(constrained.value());
-        message.valid = constrained.valid();
+
+        if (constrained.valueValid()) {
+            message.value = cnl::unwrap(constrained.value());
+        } else {
+            stripped.add(blox_ActuatorPwm_value_tag);
+        }
+        if (constrained.settingValid()) {
+            message.setting = cnl::unwrap(constrained.setting());
+        } else {
+            stripped.add(blox_ActuatorPwm_setting_tag);
+        };
+
         getAnalogConstraints(message.constrainedBy, constrained);
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
 
         return streamProtoTo(out, &message, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
     }

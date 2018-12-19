@@ -38,14 +38,22 @@ public
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
+        FieldTags stripped;
         blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensorValue = cnl::unwrap(pair.value());
-        message.setpointValue = cnl::unwrap(pair.setting());
-        message.sensorValid = sensor.valid();
-        message.setpointValid = setpoint.valid();
-        message.valid = pair.valid();
+        if (pair.valueValid()) {
+            message.sensorValue = cnl::unwrap(pair.value());
+        } else {
+            stripped.add(blox_SetpointSensorPair_sensorValue_tag);
+        }
+        if (pair.settingValid()) {
+            message.setpointValue = cnl::unwrap(pair.setting());
+        } else {
+            stripped.add(blox_SetpointSensorPair_setpointValue_tag);
+        };
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
 
         return streamProtoTo(out, &message, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
     }

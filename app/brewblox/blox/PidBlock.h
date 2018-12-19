@@ -4,6 +4,7 @@
 #include "Pid.h"
 #include "ProcessValue.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/Pid.pb.h"
 
@@ -48,16 +49,42 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
+        FieldTags stripped;
         blox_Pid message = {0};
         message.inputId = input.getId();
         message.outputId = output.getId();
 
-        message.inputValid = input.valid();
-        message.outputValid = output.valid();
-        message.inputValue = cnl::unwrap(pid.inputValue());
-        message.inputSetting = cnl::unwrap(pid.inputSetting());
-        message.outputValue = cnl::unwrap(pid.outputValue());
-        message.outputSetting = cnl::unwrap(pid.outputSetting());
+        if (auto ptr = input.const_lock()) {
+            if (ptr->valueValid()) {
+                message.inputValue = cnl::unwrap(ptr->value());
+            } else {
+                stripped.add(blox_Pid_inputValue_tag);
+            }
+            if (ptr->settingValid()) {
+                message.inputSetting = cnl::unwrap(ptr->setting());
+            } else {
+                stripped.add(blox_Pid_inputSetting_tag);
+            }
+        } else {
+            stripped.add(blox_Pid_inputSetting_tag);
+            stripped.add(blox_Pid_inputValue_tag);
+        }
+
+        if (auto ptr = output.const_lock()) {
+            if (ptr->valueValid()) {
+                message.outputValue = cnl::unwrap(ptr->value());
+            } else {
+                stripped.add(blox_Pid_outputValue_tag);
+            }
+            if (ptr->settingValid()) {
+                message.outputSetting = cnl::unwrap(ptr->setting());
+            } else {
+                stripped.add(blox_Pid_outputSetting_tag);
+            }
+        } else {
+            stripped.add(blox_Pid_outputSetting_tag);
+            stripped.add(blox_Pid_outputValue_tag);
+        }
 
         message.filter = blox_Pid_FilterChoice(pid.filterChoice());
         message.filterThreshold = cnl::unwrap(pid.filterThreshold());
@@ -73,10 +100,13 @@ public:
         message.integral = cnl::unwrap(Pid::out_t(pid.integral()));
         message.derivative = cnl::unwrap(pid.derivative());
 
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 4);
+
         return streamProtoTo(out, &message, blox_Pid_fields, blox_Pid_size);
     }
 
-    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    virtual cbox::CboxError
+    streamPersistedTo(cbox::DataOut& out) const override final
     {
         blox_Pid message = {0};
         message.inputId = input.getId();
@@ -91,13 +121,15 @@ public:
         return streamProtoTo(out, &message, blox_Pid_fields, blox_Pid_size);
     }
 
-    virtual cbox::update_t update(const cbox::update_t& now) override final
+    virtual cbox::update_t
+    update(const cbox::update_t& now) override final
     {
         pid.update();
         return update_1s(now);
     }
 
-    virtual void* implements(const cbox::obj_type_t& iface) override final
+    virtual void*
+    implements(const cbox::obj_type_t& iface) override final
     {
         if (iface == blox_Pid_msgid) {
             return this; // me!
@@ -105,22 +137,26 @@ public:
         return nullptr;
     }
 
-    Pid& get()
+    Pid&
+    get()
     {
         return pid;
     }
 
-    const Pid& get() const
+    const Pid&
+    get() const
     {
         return pid;
     }
 
-    const auto& getInputLookup() const
+    const auto&
+    getInputLookup() const
     {
         return input;
     }
 
-    const auto& getOutputLookup() const
+    const auto&
+    getOutputLookup() const
     {
         return input;
     }

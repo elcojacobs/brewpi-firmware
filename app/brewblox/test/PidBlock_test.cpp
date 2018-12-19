@@ -140,7 +140,6 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
 
     // only nonzero values are shown in the debug string
     CHECK(decoded.ShortDebugString() == "inputId: 102 outputId: 103 "
-                                        "inputValid: true outputValid: true "
                                         "inputValue: 81920 inputSetting: 86016 "
                                         "outputValue: 60518 outputSetting: 60518 "
                                         "filterThreshold: 4096 "

@@ -33,6 +33,7 @@ message BrewbloxFieldOptions {
   bool readonly = 5;
   bool logged = 6;
   bool hexstr = 7;
+  bool tags = 8;
 }
 
 extend google.protobuf.FieldOptions { BrewbloxFieldOptions brewblox = 50001; }

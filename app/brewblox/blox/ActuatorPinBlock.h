@@ -37,10 +37,19 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_ActuatorPin message = blox_ActuatorPin_init_default;
-        message.state = blox_AD_State(actuator.state());
+        FieldTags stripped;
+
+        auto state = actuator.state();
+        if (state == ActuatorDigital::State::Unknown) {
+            stripped.add(blox_ActuatorPin_state_tag);
+        } else {
+            message.state = blox_AD_State(actuator.state());
+        }
+
         message.invert = actuator.invert();
         getDigitalConstraints(message.constrainedBy, constrained);
 
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
         return streamProtoTo(out, &message, blox_ActuatorPin_fields, blox_ActuatorPin_size);
     }
 

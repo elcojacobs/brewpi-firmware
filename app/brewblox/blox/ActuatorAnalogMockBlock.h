@@ -31,16 +31,26 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorAnalogMock message;
-        message.setting = cnl::unwrap(constrained.setting());
-        message.value = cnl::unwrap(constrained.value());
-        message.valid = constrained.valid();
+        blox_ActuatorAnalogMock message = blox_ActuatorAnalogMock_init_zero;
+        FieldTags stripped;
+
+        if (constrained.valueValid()) {
+            message.value = cnl::unwrap(constrained.value());
+        } else {
+            stripped.add(blox_ActuatorAnalogMock_value_tag);
+        }
+        if (constrained.settingValid()) {
+            message.setting = cnl::unwrap(constrained.setting());
+        } else {
+            stripped.add(blox_ActuatorAnalogMock_setting_tag);
+        };
 
         message.minSetting = cnl::unwrap(actuator.minSetting());
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
         message.maxValue = cnl::unwrap(actuator.maxValue());
 
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
         return streamProtoTo(out, &message, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
     }
 
