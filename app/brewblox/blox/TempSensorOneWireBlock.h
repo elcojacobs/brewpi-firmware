@@ -3,6 +3,7 @@
 #include "TempSensorOneWire.h"
 #include "Temperature.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/TempSensorOneWire.pb.h"
 
 OneWire&
@@ -33,10 +34,18 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
+        FieldTags stripped;
+
+        if (sensor.valid()) {
+            message.value = cnl::unwrap((sensor.value()));
+        } else {
+            stripped.add(blox_TempSensorOneWire_value_tag);
+        }
+
         message.address = sensor.getAddress();
         message.offset = cnl::unwrap(sensor.getCalibration());
-        message.valid = sensor.valid();
-        message.value = cnl::unwrap((sensor.value()));
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 

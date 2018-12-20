@@ -3,6 +3,7 @@
 #include "TempSensorMock.h"
 
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/TempSensorMock.pb.h"
 
 class TempSensorMockBlock : public Block<BrewbloxOptions_BlockType_TempSensorMock> {
@@ -28,9 +29,17 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_TempSensorMock message = blox_TempSensorMock_init_zero;
-        message.value = cnl::unwrap(sensor.value());
-        message.valid = sensor.valid();
+        FieldTags stripped;
+
+        if (sensor.valid()) {
+            message.value = cnl::unwrap((sensor.value()));
+        } else {
+            stripped.add(blox_TempSensorMock_value_tag);
+        }
+
         message.connected = sensor.connected();
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
+
         return streamProtoTo(out, &message, blox_TempSensorMock_fields, blox_TempSensorMock_size);
     }
 
