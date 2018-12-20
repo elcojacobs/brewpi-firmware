@@ -13,11 +13,11 @@ message DisplaySettings {
     bytes color = 2 [ (nanopb).max_size = 3, (nanopb).fixed_length = true, (brewblox).hexstr = true ];
     string name = 3 [ (nanopb).max_size = 16 ];
     oneof obj {
-      uint32 TempSensor = 10 [ (brewblox).link = TempSensorLink, (nanopb).int_size = IS_16 ];
-      uint32 SetpointSensorPair = 11 [ (brewblox).link = SetpointSensorPairLink, (nanopb).int_size = IS_16 ];
-      uint32 ActuatorPwm = 12 [ (brewblox).link = ActuatorPwmLink, (nanopb).int_size = IS_16 ];
-      uint32 ActuatorAnalog = 13 [ (brewblox).link = ActuatorAnalogLink, (nanopb).int_size = IS_16 ];
-      uint32 Pid = 14 [ (brewblox).link = PidLink, (nanopb).int_size = IS_16 ];
+      uint32 TempSensor = 10 [ (brewblox).interface = TempSensorTypeId, (nanopb).int_size = IS_16 ];
+      uint32 SetpointSensorPair = 11 [ (brewblox).block = "SetpointSensorPair", (nanopb).int_size = IS_16 ];
+      uint32 ActuatorPwm = 12 [ (brewblox).block = "ActuatorPwm", (nanopb).int_size = IS_16 ];
+      uint32 ActuatorAnalog = 13 [ (brewblox).interface = ActuatorAnalogTypeId, (nanopb).int_size = IS_16 ];
+      uint32 Pid = 14 [ (brewblox).block = "Pid", (nanopb).int_size = IS_16 ];
     };
   }
 

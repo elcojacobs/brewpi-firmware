@@ -18,13 +18,13 @@
  */
 
 #pragma once
-#include "ActuatorPwm.h"
 #include "ProcessValueWidgetBase.h"
+#include "blox/ActuatorPwmBlock.h"
 #include "cbox/CboxPtr.h"
 
 class ActuatorPwmWidget : public ProcessValueWidgetBase {
 private:
-    cbox::CboxPtr<ActuatorPwm> lookup;
+    cbox::CboxPtr<ActuatorPwmBlock> lookup;
 
 public:
     ActuatorPwmWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);

@@ -109,7 +109,17 @@ public:
         return pwm;
     }
 
+    const ActuatorPwm& getPwm() const
+    {
+        return pwm;
+    }
+
     ActuatorAnalogConstrained& getConstrained()
+    {
+        return constrained;
+    }
+
+    const ActuatorAnalogConstrained& getConstrained() const
     {
         return constrained;
     }

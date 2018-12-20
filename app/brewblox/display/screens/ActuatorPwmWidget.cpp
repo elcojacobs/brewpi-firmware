@@ -23,7 +23,7 @@
 
 ActuatorPwmWidget::ActuatorPwmWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
     : ProcessValueWidgetBase(myWrapper)
-    , lookup(brewbloxBox().makeCboxPtr<ActuatorPwm>(id))
+    , lookup(brewbloxBox().makeCboxPtr<ActuatorPwmBlock>(id))
 {
     setClickHandler(this, onClickStatic);
 }
@@ -33,11 +33,12 @@ ActuatorPwmWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
-        setValue(to_string_dec(ptr->value(), 1).c_str());
-        setSetting(to_string_dec(ptr->setting(), 1).c_str());
+        auto pwm = ptr->getPwm();
+        setValue(to_string_dec(pwm.value(), 1).c_str());
+        setSetting(to_string_dec(pwm.setting(), 1).c_str());
 
         char icons[2];
-        switch (ptr->targetState()) {
+        switch (pwm.targetState()) {
         case ActuatorPwm::State::Inactive:
             icons[0] = 0x26;
             break;

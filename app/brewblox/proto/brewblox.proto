@@ -3,37 +3,36 @@ syntax = "proto3";
 import "google/protobuf/descriptor.proto";
 
 message BrewbloxFieldOptions {
-  enum LinkType {
-    InvalidLink = 0;
-    ProcessValueLink = 1;
-    TempSensorLink = 2;
-    SetpointLink = 3;
-    SetpointSensorPairLink = 4;
-    ActuatorAnalogLink = 5;
-    ActuatorDigitalLink = 6;
-    BalancerLink = 7;
-    MutexLink = 8;
-    OneWireDeviceLink = 9;
-    ActuatorPwmLink = 10;
-    PidLink = 11;
+  enum InterfaceType {
+    InvalidTypeId = 0;
+    ProcessValueTypeId = 1;
+    TempSensorTypeId = 2;
+    SetpointTypeId = 3;
+    SetpointSensorPairTypeId = 4;
+    ActuatorAnalogTypeId = 5;
+    ActuatorDigitalTypeId = 6;
+    BalancerTypeId = 7;
+    MutexTypeId = 8;
+    OneWireDeviceTypeId = 9;
   }
   enum UnitType {
-      NotSet = 0;
-      Temp = 1;
-      DeltaTemp = 2;
-      DeltaTempPerTime = 3;
-      Time = 4;
-      InverseTemp = 5;
-      DeltaTempTime = 6;
+    NotSet = 0;
+    Temp = 1;
+    DeltaTemp = 2;
+    DeltaTempPerTime = 3;
+    Time = 4;
+    InverseTemp = 5;
+    DeltaTempTime = 6;
   }
   UnitType unit = 1;
   uint32 scale = 2;
-  LinkType link = 3;
+  InterfaceType interface = 3;
   bool hexed = 4;
   bool readonly = 5;
   bool logged = 6;
   bool hexstr = 7;
   bool tags = 8;
+  string block = 9;
 }
 
 extend google.protobuf.FieldOptions { BrewbloxFieldOptions brewblox = 50001; }

@@ -3,6 +3,7 @@
 #include "SetpointSensorPair.h"
 #include "SetpointSensorPair.pb.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 
 using std::placeholders::_1;
@@ -90,6 +91,11 @@ public
     }
 
     SetpointSensorPair& get()
+    {
+        return pair;
+    }
+
+    const SetpointSensorPair& get() const
     {
         return pair;
     }
