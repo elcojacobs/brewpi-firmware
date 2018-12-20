@@ -8,7 +8,7 @@ import "DigitalConstraints.proto";
 package blox;
 
 message ActuatorPin {
-  option (nanopb_msgopt).msgid = 306;
+  option (brewblox_msg).objtype = ActuatorPin;
 
   AD.State state = 1;
   bool invert = 3;

@@ -8,7 +8,7 @@
 OneWire&
 theOneWire();
 
-class TempSensorOneWireBlock : public Block<blox_TempSensorOneWire_msgid> {
+class TempSensorOneWireBlock : public Block<BrewbloxOptions_BlockType_TempSensorOneWire> {
 private:
     TempSensorOneWire sensor;
 
@@ -56,7 +56,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_TempSensorOneWire_msgid) {
+        if (iface == BrewbloxOptions_BlockType_TempSensorOneWire) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<TempSensor>()) {

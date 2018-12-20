@@ -114,20 +114,20 @@ WidgetsScreen::loadSettings()
         wrapper.setName(widgetDfn.name);
         wrapper.setColor(widgetDfn.color[0], widgetDfn.color[1], widgetDfn.color[2]);
 
-        switch (widgetDfn.which_obj) {
-        case blox_DisplaySettings_Widget_TempSensor_tag:
-            widgets.push_back(std::make_unique<TempSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.TempSensor)));
+        switch (widgetDfn.which_WidgetType) {
+        case blox_DisplaySettings_Widget_tempSensor_tag:
+            widgets.push_back(std::make_unique<TempSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.tempSensor)));
             break;
-        case blox_DisplaySettings_Widget_SetpointSensorPair_tag:
-            widgets.push_back(std::make_unique<SetpointSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.SetpointSensorPair)));
+        case blox_DisplaySettings_Widget_setpointSensorPair_tag:
+            widgets.push_back(std::make_unique<SetpointSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.setpointSensorPair)));
             break;
-        case blox_DisplaySettings_Widget_ActuatorPwm_tag:
-            widgets.push_back(std::make_unique<ActuatorPwmWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.ActuatorPwm)));
+        case blox_DisplaySettings_Widget_actuatorPwm_tag:
+            widgets.push_back(std::make_unique<ActuatorPwmWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.actuatorPwm)));
             break;
-        case blox_DisplaySettings_Widget_ActuatorAnalog_tag:
+        case blox_DisplaySettings_Widget_actuatorAnalogMock_tag:
             break;
-        case blox_DisplaySettings_Widget_Pid_tag:
-            widgets.push_back(std::make_unique<PidWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.Pid)));
+        case blox_DisplaySettings_Widget_pid_tag:
+            widgets.push_back(std::make_unique<PidWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.pid)));
             break;
         default:
             break;

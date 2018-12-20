@@ -5,7 +5,7 @@
 #include "blox/Block.h"
 #include "proto/cpp/SetpointSimple.pb.h"
 
-class SetpointSimpleBlock : public Block<blox_SetpointSimple_msgid> {
+class SetpointSimpleBlock : public Block<BrewbloxOptions_BlockType_SetpointSimple> {
 private:
     SetpointSimple setpoint;
 
@@ -46,7 +46,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_SetpointSimple_msgid) {
+        if (iface == BrewbloxOptions_BlockType_SetpointSimple) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<Setpoint>()) {

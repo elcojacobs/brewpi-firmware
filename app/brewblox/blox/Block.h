@@ -1,5 +1,6 @@
 #pragma once
 
+#include "brewblox.pb.h"
 #include "cbox/ObjectBase.h"
 #include "pb.h"
 #include <type_traits>

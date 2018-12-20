@@ -9,7 +9,7 @@
 #include "proto/cpp/ActuatorOffset.pb.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
 
-class ActuatorOffsetBlock : public Block<blox_ActuatorOffset_msgid> {
+class ActuatorOffsetBlock : public Block<BrewbloxOptions_BlockType_ActuatorOffset> {
 private:
     cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     cbox::CboxPtr<SetpointSensorPair> target;
@@ -92,7 +92,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_ActuatorOffset_msgid) {
+        if (iface == BrewbloxOptions_BlockType_ActuatorOffset) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {

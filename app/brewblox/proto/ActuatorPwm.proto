@@ -7,9 +7,9 @@ import "AnalogConstraints.proto";
 package blox;
 
 message ActuatorPwm {
-  option (nanopb_msgopt).msgid = 307;
+  option (brewblox_msg).objtype = ActuatorPwm;
 
-  uint32 actuatorId = 1 [ (brewblox).interface = ActuatorDigitalTypeId, (nanopb).int_size = IS_16 ];
+  uint32 actuatorId = 1 [ (brewblox).objtype = ActuatorDigitalInterface, (nanopb).int_size = IS_16 ];
   uint32 period = 3;
   sint32 setting = 4 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
   sint32 value = 5 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];

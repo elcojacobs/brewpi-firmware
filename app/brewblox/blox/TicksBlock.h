@@ -27,7 +27,7 @@
 
 // provides a protobuf interface to the ticks object
 template <typename T>
-class TicksBlock : public cbox::ObjectBase<blox_Ticks_msgid> {
+class TicksBlock : public cbox::ObjectBase<BrewbloxOptions_BlockType_Ticks> {
     T& ticks;
 
 public:

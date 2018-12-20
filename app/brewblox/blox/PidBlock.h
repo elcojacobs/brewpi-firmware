@@ -10,7 +10,7 @@
 
 #include "cbox/CboxPtr.h"
 
-class PidBlock : public Block<blox_Pid_msgid> {
+class PidBlock : public Block<BrewbloxOptions_BlockType_Pid> {
 private:
     cbox::CboxPtr<ProcessValue<Pid::in_t>> input;
     cbox::CboxPtr<ActuatorAnalogConstrained> output;
@@ -131,7 +131,7 @@ public:
     virtual void*
     implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_Pid_msgid) {
+        if (iface == BrewbloxOptions_BlockType_Pid) {
             return this; // me!
         }
         return nullptr;

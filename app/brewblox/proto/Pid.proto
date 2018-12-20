@@ -6,7 +6,7 @@ import "nanopb.proto";
 package blox;
 
 message Pid {
-  option (nanopb_msgopt).msgid = 304;
+  option (brewblox_msg).objtype = Pid;
 
   enum FilterChoice {
     FILT_30s = 0;
@@ -18,8 +18,8 @@ message Pid {
     FILT_45m = 6;
   }
 
-  uint32 inputId = 1 [ (brewblox).interface = ProcessValueTypeId, (nanopb).int_size = IS_16 ];
-  uint32 outputId = 2 [ (brewblox).interface = ActuatorAnalogTypeId, (nanopb).int_size = IS_16 ];
+  uint32 inputId = 1 [ (brewblox).objtype = ProcessValueInterface, (nanopb).int_size = IS_16 ];
+  uint32 outputId = 2 [ (brewblox).objtype = ActuatorAnalogInterface, (nanopb).int_size = IS_16 ];
 
   sint32 inputValue = 5 [ (brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
   sint32 inputSetting = 6 [ (brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];

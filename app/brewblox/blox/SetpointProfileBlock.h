@@ -6,7 +6,7 @@
 #include "pb_encode.h"
 #include "proto/cpp/SetpointProfile.pb.h"
 
-class SetpointProfileBlock : public Block<blox_SetpointProfile_msgid> {
+class SetpointProfileBlock : public Block<BrewbloxOptions_BlockType_SetpointProfile> {
 private:
     SetpointProfile profile;
     using Point = SetpointProfile::Point;
@@ -83,7 +83,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_SetpointProfile_msgid) {
+        if (iface == BrewbloxOptions_BlockType_SetpointProfile) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<Setpoint>()) {
