@@ -80,14 +80,14 @@ template <>
 const obj_type_t
 interfaceIdImpl<TimedMutex>()
 {
-    return BrewbloxOptions_BlockType_Mutex;
+    return BrewbloxOptions_BlockType_MutexInterface;
 }
 
 template <>
 const obj_type_t
 interfaceIdImpl<Balancer<blox_DigitalConstraint_mutex_tag>>()
 {
-    return BrewbloxOptions_BlockType_Balancer;
+    return BrewbloxOptions_BlockType_BalancerInterface;
 }
 
 template <>
