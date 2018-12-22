@@ -18,7 +18,7 @@ do
   sed -i 's/ActuatorDigital.proto/ActuatorDigital.test.proto/g' "test/proto/${file%.proto}.test.proto"
   sed -i 's/AnalogConstraints.proto/AnalogConstraints.test.proto/g' "test/proto/${file%.proto}.test.proto"
   sed -i 's/DigitalConstraints.proto/DigitalConstraints.test.proto/g' "test/proto/${file%.proto}.test.proto"
-  sed -i 's/BrewbloxFieldOptions/BrewbloxTestFieldOptions/g' "test/proto/${file%.proto}.test.proto"
+  sed -i 's/BrewbloxOptions/BrewbloxTestOptions/g' "test/proto/${file%.proto}.test.proto"
 done
 
 # generate code

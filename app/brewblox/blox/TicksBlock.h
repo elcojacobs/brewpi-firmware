@@ -22,12 +22,11 @@
 #include "Ticks.h"
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
-#include "cbox/ObjectBase.h"
 #include "proto/cpp/Ticks.pb.h"
 
 // provides a protobuf interface to the ticks object
 template <typename T>
-class TicksBlock : public cbox::ObjectBase<BrewbloxOptions_BlockType_Ticks> {
+class TicksBlock : public Block<BrewbloxOptions_BlockType_Ticks> {
     T& ticks;
 
 public:

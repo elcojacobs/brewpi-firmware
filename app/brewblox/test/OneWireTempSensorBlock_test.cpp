@@ -43,7 +43,6 @@ SCENARIO("A TempSensorOneWireBlock")
         auto message = blox::TempSensorOneWire();
         message.set_address(12345678);
         message.set_offset(100);
-        message.set_valid(true);
         message.set_value(123);
 
         testBox.put(message);
@@ -61,8 +60,10 @@ SCENARIO("A TempSensorOneWireBlock")
         {
             CHECK(testBox.lastReplyHasStatusOk());
 
+            // the value is invalid and therefore added to stripped fields to distinguish from value zero
             CHECK(decoded.ShortDebugString() == "offset: 100 "
-                                                "address: 12345678");
+                                                "address: 12345678 "
+                                                "strippedFields: 1");
         }
 
         THEN("The writable settings match what was sent")

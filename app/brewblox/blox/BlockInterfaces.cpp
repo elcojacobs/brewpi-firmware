@@ -36,7 +36,7 @@ namespace cbox {
 
 template <>
 const obj_type_t
-interfaceIdImpl<ProcessValue<safe_elastic_fixed_point<11, 12, int32_t>>>()
+interfaceIdImpl<ProcessValue<fp12_t>>()
 {
     return BrewbloxOptions_BlockType_ProcessValueInterface;
 }
