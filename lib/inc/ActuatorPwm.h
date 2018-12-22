@@ -110,6 +110,4 @@ public:
     virtual bool settingValid() const override final;
 
     virtual void settingValid(bool v) override final;
-
-    State targetState() const;
 };

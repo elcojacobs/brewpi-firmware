@@ -53,6 +53,7 @@ public:
             D4D_EnableObject(obj, true);
             return;
         }
+        D4D_SetText(obj, "--.-");
         D4D_EnableObject(obj, false);
     }
 

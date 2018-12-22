@@ -22,13 +22,13 @@
 #include "blox/ActuatorPwmBlock.h"
 #include "cbox/CboxPtr.h"
 
-class ActuatorPwmWidget : public ProcessValueWidgetBase {
+class ActuatorAnalogWidget : public ProcessValueWidgetBase {
 private:
-    cbox::CboxPtr<ActuatorPwmBlock> lookup;
+    cbox::CboxPtr<ActuatorAnalogConstrained> lookup;
 
 public:
-    ActuatorPwmWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
-    virtual ~ActuatorPwmWidget() = default;
+    ActuatorAnalogWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
+    virtual ~ActuatorAnalogWidget() = default;
 
     virtual void update() override final;
 

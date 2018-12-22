@@ -104,6 +104,11 @@ public:
         return nullptr;
     }
 
+    const cbox::CboxPtr<ActuatorDigitalConstrained>& targetLookup() const
+    {
+        return actuator;
+    }
+
     ActuatorPwm& getPwm()
     {
         return pwm;

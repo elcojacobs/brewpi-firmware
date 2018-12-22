@@ -20,6 +20,7 @@
 #include "PidWidget.h"
 #include "BrewBlox.h"
 #include "Temperature.h"
+#include "blox/ActuatorPwmBlock.h"
 #include "d4d.hpp"
 #include "future_std.h"
 #include <algorithm>
@@ -28,7 +29,7 @@ PidWidget::PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
     : WidgetBase(myWrapper)
     , labelRelations{wrapper.pObj(), nullptr}
     , inputTarget{
-          {0, 12},              // D4D_POINT position
+          {0, 8},               // D4D_POINT position
           {wrapper.cx / 2, 15}, // D4D_SIZE                              size;                 ///< Size of the object.
           0,                    // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,              // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
@@ -42,7 +43,7 @@ PidWidget::PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
           &inputTargetData,     ///< Pointer on runtime object data.
       }
     , inputValue{
-          {wrapper.cx / 2, 12}, // D4D_POINT position
+          {wrapper.cx / 2, 8},  // D4D_POINT position
           {wrapper.cx / 2, 15}, // D4D_SIZE                              size;                 ///< Size of the object.
           0,                    // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,              // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
@@ -56,7 +57,7 @@ PidWidget::PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
           &inputValueData,      ///< Pointer on runtime object data.
       }
     , outputTarget{
-          {0, 35},              // D4D_POINT position
+          {0, 31},              // D4D_POINT position
           {wrapper.cx / 2, 15}, // D4D_SIZE                              size;                 ///< Size of the object.
           0,                    // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,              // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
@@ -70,7 +71,7 @@ PidWidget::PidWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
           &outputTargetData,    ///< Pointer on runtime object data.
       }
     , outputValue{
-          {wrapper.cx / 2, 35}, // D4D_POINT position
+          {wrapper.cx / 2, 31}, // D4D_POINT position
           {wrapper.cx / 2, 15}, // D4D_SIZE                              size;                 ///< Size of the object.
           0,                    // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,              // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
@@ -125,9 +126,9 @@ PidWidget::drawPidRect(const fp12_t& v, D4D_COOR yPos)
 void
 PidWidget::drawPidRects(const Pid& pid)
 {
-    drawPidRect(pid.p(), 55);
-    drawPidRect(pid.i(), 59);
-    drawPidRect(pid.d(), 63);
+    drawPidRect(pid.p(), 54);
+    drawPidRect(pid.i(), 58);
+    drawPidRect(pid.d(), 62);
 }
 
 void
@@ -152,34 +153,36 @@ PidWidget::update()
 
         auto output = outputLookup.const_lock();
         if (output && output->valueValid()) {
-            setInputValue(temp_to_string(output->value(), 1).c_str());
+            setOutputValue(temp_to_string(output->value(), 1).c_str());
         } else {
-            setInputValue(nullptr);
+            setOutputValue(nullptr);
         }
         if (output && output->settingValid()) {
-            setInputTarget(temp_to_string(output->setting(), 1).c_str());
+            setOutputTarget(temp_to_string(output->setting(), 1).c_str());
         } else {
-            setInputTarget(nullptr);
+            setOutputTarget(nullptr);
         }
 
         drawPidRects(pid);
 
-        char icons[2];
+        char icons[2] = "\x28";
+        if (auto pwmBlock = outputLookup.const_lock_as<ActuatorPwmBlock>()) {
+            if (auto pwmTarget = pwmBlock->targetLookup().const_lock()) {
+                switch (pwmTarget->state()) {
+                case ActuatorPwm::State::Inactive:
+                    icons[0] = 0x26;
+                    break;
+                case ActuatorPwm::State::Active:
+                    icons[0] = 0x27;
+                    break;
+                }
+            }
+        } else if (output) {
+            icons[0] = 0;
+        }
 
-        /*switch (ptr->targetState()) {
-        case ActuatorPwm::State::Inactive:
-            icons[0] = 0x26;
-            break;
-        case ActuatorPwm::State::Active:
-            icons[0] = 0x27;
-            break;
-        default:
-            break;
-        }*/
-        icons[0]
-            = 0x28;
-        icons[1] = 0;
         setIcons(icons);
+
         return;
     }
     setDisconnected();

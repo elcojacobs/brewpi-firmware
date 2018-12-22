@@ -18,7 +18,7 @@
  */
 
 #include "WidgetsScreen.h"
-#include "ActuatorPwmWidget.h"
+#include "ActuatorAnalogWidget.h"
 #include "BrewBlox.h"
 #include "PidWidget.h"
 #include "SetpointSensorWidget.h"
@@ -121,10 +121,8 @@ WidgetsScreen::loadSettings()
         case blox_DisplaySettings_Widget_setpointSensorPair_tag:
             widgets.push_back(std::make_unique<SetpointSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.setpointSensorPair)));
             break;
-        case blox_DisplaySettings_Widget_actuatorPwm_tag:
-            widgets.push_back(std::make_unique<ActuatorPwmWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.actuatorPwm)));
-            break;
-        case blox_DisplaySettings_Widget_actuatorAnalogMock_tag:
+        case blox_DisplaySettings_Widget_actuatorAnalog_tag:
+            widgets.push_back(std::make_unique<ActuatorAnalogWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.actuatorAnalog)));
             break;
         case blox_DisplaySettings_Widget_pid_tag:
             widgets.push_back(std::make_unique<PidWidget>(wrapper, cbox::obj_id_t(widgetDfn.WidgetType.pid)));

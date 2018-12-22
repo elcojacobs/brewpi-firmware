@@ -158,6 +158,6 @@ public:
     const auto&
     getOutputLookup() const
     {
-        return input;
+        return output;
     }
 };
