@@ -108,19 +108,18 @@ void
 PidWidget::drawPidRect(const fp12_t& v, D4D_COOR yPos)
 {
     D4D_COOR middle = wrapper.x + wrapper.cx / 2;
-    D4D_POINT startP;
-    int8_t lenMax = int8_t(wrapper.cx / 2 - 5);
 
-    int8_t lenP = int8_t(v) / 2;
-    lenP = std::clamp(lenP, int8_t(-lenMax), lenMax);
-
-    startP = {middle, wrapper.y + yPos};
-    D4D_SIZE size = {lenP, 2};
+    D4D_COOR lenMax = wrapper.cx / 2 - 5;
+    D4D_COOR lenP = std::min(D4D_COOR(abs(v) * fp12_t(lenMax) / 100), lenMax);
 
     // clear
     D4D_FillRectXY(middle - lenMax, wrapper.y + yPos, middle + lenMax, wrapper.y + yPos + 2, wrapper.colorScheme.foreDis);
     // draw
-    D4D_FillRect(&startP, &size, D4D_COLOR_WHITE);
+    if (v >= 0) {
+        D4D_FillRectXY(middle, wrapper.y + yPos, middle + lenP, wrapper.y + yPos + 2, D4D_COLOR_WHITE);
+    } else {
+        D4D_FillRectXY(middle - lenP, wrapper.y + yPos, middle, wrapper.y + yPos + 2, D4D_COLOR_WHITE);
+    }
 }
 
 void

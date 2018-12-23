@@ -46,7 +46,7 @@ ActuatorAnalogWidget::update()
             setSetting(nullptr);
         }
 
-        char icons[2] = "\x28";
+        char icons[2] = {0};
         if (auto pwmBlock = lookup.lock_as<ActuatorPwmBlock>()) {
             if (auto pwmTarget = pwmBlock->targetLookup().const_lock()) {
                 switch (pwmTarget->state()) {
