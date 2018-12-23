@@ -140,26 +140,26 @@ PidWidget::update()
         setConnected();
         auto input = inputLookup.const_lock();
         if (input && input->valueValid()) {
-            setInputValue(temp_to_string(input->value(), 1).c_str());
+            setAndEnable(&inputValue, temp_to_string(input->value(), 1).c_str());
         } else {
-            setInputValue(nullptr);
+            setAndEnable(&inputValue, nullptr);
         }
         if (input && input->settingValid()) {
-            setInputTarget(temp_to_string(input->setting(), 1).c_str());
+            setAndEnable(&inputTarget, temp_to_string(input->setting(), 1).c_str());
         } else {
-            setInputTarget(nullptr);
+            setAndEnable(&inputTarget, nullptr);
         }
 
         auto output = outputLookup.const_lock();
         if (output && output->valueValid()) {
-            setOutputValue(temp_to_string(output->value(), 1).c_str());
+            setAndEnable(&outputValue, temp_to_string(output->value(), 1).c_str());
         } else {
-            setOutputValue(nullptr);
+            setAndEnable(&outputValue, nullptr);
         }
         if (output && output->settingValid()) {
-            setOutputTarget(temp_to_string(output->setting(), 1).c_str());
+            setAndEnable(&outputTarget, temp_to_string(output->setting(), 1).c_str());
         } else {
-            setOutputTarget(nullptr);
+            setAndEnable(&outputTarget, nullptr);
         }
 
         drawPidRects(pid);

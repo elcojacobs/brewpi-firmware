@@ -64,30 +64,6 @@ public:
     virtual ~PidWidget() = default;
 
     void
-    setInputTarget(const char* txt)
-    {
-        setAndEnable(&inputTarget, txt);
-    }
-
-    void
-    setInputValue(const char* txt)
-    {
-        setAndEnable(&inputValue, txt);
-    }
-
-    void
-    setOutputTarget(const char* txt)
-    {
-        setAndEnable(&outputTarget, txt);
-    }
-
-    void
-    setOutputValue(const char* txt)
-    {
-        setAndEnable(&outputValue, txt);
-    }
-
-    void
     setIcons(const char* txt)
     {
         setAndEnable(&icons, txt);
