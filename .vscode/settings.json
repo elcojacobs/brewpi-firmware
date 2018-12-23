@@ -129,4 +129,9 @@
     "-Iplatform/spark/modules/mdns/src",
   ],
   "clang.completion.enable": true,
+  "catch2TestExplorer.executables": [
+    "app/brewblox/test/build/brewblox_test_runner",
+    "lib/test_catch/build/lib_test_runner",
+    "controlbox/build/cbox_test_runner",
+  ]
 }
