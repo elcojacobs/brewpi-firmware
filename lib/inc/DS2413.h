@@ -35,9 +35,10 @@
  */
 class DS2413 : public OneWireDevice {
 public:
-    enum class Pio : char {
-        A = 'A',
-        B = 'B'
+    enum class Pio : uint8_t {
+        UNSET,
+        A,
+        B
     };
 
 private:

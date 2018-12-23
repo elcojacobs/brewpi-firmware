@@ -28,37 +28,39 @@
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
-class ActuatorOneWire final : public ActuatorDigital {
+class ActuatorDS2413 final : public ActuatorDigital {
 private:
     const std::function<std::shared_ptr<DS2413>()> m_device;
-    DS2413::Pio m_output;
-    bool m_invert;
+    bool m_invert = true;
 
 public:
-    explicit ActuatorOneWire(std::function<std::shared_ptr<DS2413>()>&& device,
-                             DS2413::Pio output,
-                             bool invert = true)
+    DS2413::Pio channel = DS2413::Pio::UNSET;
+
+public:
+    explicit ActuatorDS2413(std::function<std::shared_ptr<DS2413>()>&& device)
         : m_device(device)
-        , m_output(output)
-        , m_invert(invert)
     {
     }
-    ~ActuatorOneWire() = default;
+    ~ActuatorDS2413() = default;
 
     virtual void state(const State& state) override final
     {
         bool bitVal = (state == State::Active) ^ m_invert;
-        if (auto devPtr = m_device()) {
-            devPtr->writeLatchBit(m_output, bitVal, true);
+        if (channel != DS2413::Pio::UNSET) {
+            if (auto devPtr = m_device()) {
+                devPtr->writeLatchBit(channel, bitVal, true);
+            }
         }
     }
 
     virtual State state() const override final
     {
         bool result;
-        if (auto devPtr = m_device()) {
-            if (devPtr->latchReadCached(m_output, result)) {
-                return (result ^ m_invert) ? State::Active : State::Inactive;
+        if (channel != DS2413::Pio::UNSET) {
+            if (auto devPtr = m_device()) {
+                if (devPtr->latchReadCached(channel, result)) {
+                    return (result ^ m_invert) ? State::Active : State::Inactive;
+                }
             }
         }
         return State::Unknown;
@@ -66,11 +68,13 @@ public:
 
     State sense()
     {
-        if (auto devPtr = m_device()) {
-            if (devPtr->writeLatchBit(m_output, false, false)) {
-                bool result;
-                if (devPtr->readLatchBit(m_output, result, false)) {
-                    return (result ^ m_invert) ? State::Active : State::Inactive;
+        if (channel != DS2413::Pio::UNSET) {
+            if (auto devPtr = m_device()) {
+                if (devPtr->writeLatchBit(channel, false, false)) {
+                    bool result;
+                    if (devPtr->readLatchBit(channel, result, false)) {
+                        return (result ^ m_invert) ? State::Active : State::Inactive;
+                    }
                 }
             }
         }
@@ -79,8 +83,22 @@ public:
 
     void update()
     {
-        if (auto devPtr = m_device()) {
-            devPtr->update();
+        if (channel != DS2413::Pio::UNSET) {
+            if (auto devPtr = m_device()) {
+                devPtr->update();
+            }
         }
+    }
+
+    bool invert() const
+    {
+        return m_invert;
+    }
+
+    void invert(bool inv)
+    {
+        auto active = state();
+        m_invert = inv;
+        state(active);
     }
 };

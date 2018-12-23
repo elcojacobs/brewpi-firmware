@@ -21,6 +21,35 @@ public:
     {
     }
 
+    bool claim(const DS2413::Pio& channel, const cbox::obj_id_t& newOwner)
+    {
+        switch (channel) {
+        case DS2413::Pio::A:
+            if (inUseBy.A == 0) {
+                inUseBy.A = newOwner;
+                return true;
+            }
+            break;
+        case DS2413::Pio::B:
+            if (inUseBy.B == 0) {
+                inUseBy.B = newOwner;
+                return true;
+            }
+            break;
+        case DS2413::Pio::UNSET:
+            if (inUseBy.A == newOwner) {
+                inUseBy.A = 0;
+            }
+            if (inUseBy.B == newOwner) {
+                inUseBy.B = 0;
+            }
+            return true;
+            break;
+        }
+
+        return false;
+    }
+
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
         blox_DS2413 newData = blox_DS2413_init_zero;

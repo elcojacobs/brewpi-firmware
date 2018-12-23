@@ -34,6 +34,7 @@ message BrewbloxOptions {
     TouchSettings = 313;
     DisplaySettings = 314;
     DS2413 = 315;
+    ActuatorDS2413 = 316;
   }
 
   enum UnitType {
