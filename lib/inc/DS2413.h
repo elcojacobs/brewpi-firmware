@@ -53,7 +53,8 @@ public:
     /**
      * Constructor, initializes cached state to 0xff, which is an invalid state to signal that the cache is not valid yet.
      */
-    DS2413(OneWire& oneWire, const OneWireAddress& address)
+
+    DS2413(OneWire& oneWire, OneWireAddress address = 0)
         : OneWireDevice(oneWire, address)
         , m_cachedState(0xff)
         , m_connected(false)

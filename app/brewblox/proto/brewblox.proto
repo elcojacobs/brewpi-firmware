@@ -14,6 +14,7 @@ message BrewbloxOptions {
     BalancerInterface = 7;
     MutexInterface = 8;
     OneWireDeviceInterface = 9;
+    DS2413Interface = 10;
     SysInfo = 256;
     OneWireBus = 258;
     Ticks = 257;
@@ -32,6 +33,7 @@ message BrewbloxOptions {
     WiFiSettings = 312;
     TouchSettings = 313;
     DisplaySettings = 314;
+    DS2413 = 315;
   }
 
   enum UnitType {

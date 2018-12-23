@@ -21,6 +21,7 @@
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorPwm.h"
 #include "Balancer.h"
+#include "DS2413.h"
 #include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
 #include "OneWireDevice.h"
@@ -95,6 +96,13 @@ const obj_type_t
 interfaceIdImpl<OneWireDevice>()
 {
     return BrewbloxOptions_BlockType_OneWireDeviceInterface;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<DS2413>()
+{
+    return BrewbloxOptions_BlockType_DS2413Interface;
 }
 
 } // end namespace cbox

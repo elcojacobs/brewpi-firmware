@@ -22,6 +22,7 @@
 #include "OneWire.h"
 #include "OneWireAddress.h"
 #include "OneWireDevice.h"
+#include "blox/DS2413Block.h"
 #include "blox/TempSensorOneWireBlock.h"
 #include "cbox/Object.h"
 #include "cbox/ObjectContainer.h"
@@ -47,15 +48,25 @@ public:
 
     virtual ~OneWireScanningFactory() = default;
 
-    virtual void reset() override final
+    virtual void reset() override
     {
         bus.reset_search();
     };
+
+    virtual OneWireAddress next()
+    {
+        auto newAddr = OneWireAddress();
+        if (bus.search(newAddr.asUint8ptr())) {
+            return newAddr;
+        }
+        return 0;
+    }
+
     virtual std::shared_ptr<cbox::Object> scan() override final
     {
         auto newAddr = OneWireAddress();
         while (true) {
-            if (bus.search(newAddr.asUint8ptr())) {
+            if (auto newAddr = next()) {
                 bool found = false;
                 for (auto existing = objectsRef.cbegin(); existing != objectsRef.cend(); ++existing) {
                     OneWireDevice* ptrIfCorrectType = reinterpret_cast<OneWireDevice*>(existing->object()->implements(cbox::interfaceId<OneWireDevice>()));
@@ -73,8 +84,13 @@ public:
                     switch (familyCode) {
                     case DS18B20MODEL: {
                         auto newSensor = std::make_shared<TempSensorOneWireBlock>();
-                        newSensor->get().setAddress(newAddr);
+                        newSensor->get().setDeviceAddress(newAddr);
                         return std::move(newSensor);
+                    }
+                    case DS2413_FAMILY_ID: {
+                        auto newDevice = std::make_shared<DS2413Block>();
+                        newDevice->get().setDeviceAddress(newAddr);
+                        return std::move(newDevice);
                     }
                     default:
                         break;

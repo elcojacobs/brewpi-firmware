@@ -20,15 +20,15 @@
 #include <catch.hpp>
 
 #include "BrewBloxTestBox.h"
-#include "blox/TempSensorOneWireBlock.h"
+#include "blox/DS2413Block.h"
 #include "cbox/CboxPtr.h"
 #include "cbox/DataStreamIo.h"
-#include "proto/test/cpp/TempSensorOneWire.test.pb.h"
+#include "proto/test/cpp/DS2413.test.pb.h"
 #include <sstream>
 
-SCENARIO("A TempSensorOneWireBlock")
+SCENARIO("A DS2413 Block")
 {
-    WHEN("a TempSensorOneWire object is created")
+    WHEN("a DS2413 object is created")
     {
         BrewBloxTestBox testBox;
         using commands = cbox::Box::CommandID;
@@ -38,12 +38,10 @@ SCENARIO("A TempSensorOneWireBlock")
         testBox.put(commands::CREATE_OBJECT);
         testBox.put(cbox::obj_id_t(100));
         testBox.put(uint8_t(0xFF));
-        testBox.put(TempSensorOneWireBlock::staticTypeId());
+        testBox.put(DS2413Block::staticTypeId());
 
-        auto message = blox::TempSensorOneWire();
+        auto message = blox::DS2413();
         message.set_address(12345678);
-        message.set_offset(100);
-        message.set_value(123);
 
         testBox.put(message);
 
@@ -53,7 +51,7 @@ SCENARIO("A TempSensorOneWireBlock")
         testBox.put(commands::READ_OBJECT);
         testBox.put(cbox::obj_id_t(100));
 
-        auto decoded = blox::TempSensorOneWire();
+        auto decoded = blox::DS2413();
         testBox.processInputToProto(decoded);
 
         THEN("The returned protobuf data is as expected")
@@ -61,23 +59,20 @@ SCENARIO("A TempSensorOneWireBlock")
             CHECK(testBox.lastReplyHasStatusOk());
 
             // the value is invalid and therefore added to stripped fields to distinguish from value zero
-            CHECK(decoded.ShortDebugString() == "offset: 100 "
-                                                "address: 12345678 "
-                                                "strippedFields: 1");
+            CHECK(decoded.ShortDebugString() == "address: 12345678");
         }
 
         THEN("The writable settings match what was sent")
         {
-            auto lookup = brewbloxBox().makeCboxPtr<TempSensorOneWireBlock>(100);
-            auto sensorPtr = lookup.lock();
-            REQUIRE(sensorPtr);
-            CHECK(sensorPtr->get().getDeviceAddress() == 12345678);
-            CHECK(sensorPtr->get().getCalibration() == cnl::wrap<temp_t>(100));
+            auto lookup = brewbloxBox().makeCboxPtr<DS2413Block>(100);
+            auto devicePtr = lookup.lock();
+            REQUIRE(devicePtr);
+            CHECK(devicePtr->get().getDeviceAddress() == 12345678);
 
             AND_THEN("The values that are not writable are unchanged")
             {
-                CHECK(sensorPtr->get().value() == temp_t(0));
-                CHECK(sensorPtr->get().valid() == false);
+                // CHECK(sensorPtr->get().value() == temp_t(0));
+                // CHECK(sensorPtr->get().valid() == false);
             }
         }
     }

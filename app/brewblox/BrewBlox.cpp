@@ -26,6 +26,7 @@
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
+#include "blox/DS2413Block.h"
 #include "blox/DisplaySettingsBlock.h"
 #include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
@@ -133,6 +134,7 @@ makeBrewBloxBox()
         {BalancerBlock::staticTypeId(), std::make_shared<BalancerBlock>},
         {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
         {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeRef()); }},
+        {DS2413Block::staticTypeId(), std::make_shared<DS2413Block>},
     };
 
     static EepromAccessImpl eeprom;
