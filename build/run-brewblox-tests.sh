@@ -11,7 +11,7 @@ lcov --zerocounters --directory test
 
 echo "running lcov initial"
 lcov -q --capture --initial --directory test --output-file coverage/base.info
-./runner 
+./brewblox_test_runner 
 (( result = $? ))
 status $result
 (( exit_status = exit_status || result ))
