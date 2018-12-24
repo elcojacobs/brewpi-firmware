@@ -40,6 +40,7 @@ typedef void (*_CELLULAR_SMS_CB_MDM)(void* data, int index);
 #define DEFINE_NET_PROVIDER_DATA \
     DEFINE_NET_PROVIDER( CELLULAR_NETPROV_TELEFONICA, "spark.telefonica.com", (23*60), (5684) ),  \
     DEFINE_NET_PROVIDER( CELLULAR_NETPROV_TWILIO, "wireless.twilio.com", (23*60), (4500) ),  \
+    DEFINE_NET_PROVIDER( CELLULAR_NETPROV_KORE, "", (23*60), (5684) ),  \
     DEFINE_NET_PROVIDER( CELLULAR_NETPROV_MAX, "", (0), (0) )
 
 #define DEFINE_NET_PROVIDER( idx, apn, keepalive, port )  idx
@@ -87,6 +88,7 @@ struct CellularDevice
     uint16_t size;
     char iccid[21];
     char imei[16];
+    int dev;
 
     CellularDevice()
     {
@@ -112,7 +114,7 @@ typedef struct
     union {
       int32_t rssi; // Generic accessor, GSM
       int32_t rscp; // UMTS
-      int32_t rsrq; // LTE
+      int32_t rsrp; // LTE
     };
     // In % mapped to [0, 65535]
     int32_t strength;
@@ -122,7 +124,7 @@ typedef struct
       int32_t ber;  // GSM
       int32_t bep;  // EDGE
       int32_t ecno; // UMTS
-      int32_t rsrp; // LTE
+      int32_t rsrq; // LTE
     };
     // In % mapped to [0, 65535]
     int32_t quality;

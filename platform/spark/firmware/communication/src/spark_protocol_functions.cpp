@@ -180,12 +180,15 @@ void spark_protocol_get_product_details(ProtocolFacade* protocol, product_detail
 }
 
 int spark_protocol_set_connection_property(ProtocolFacade* protocol, unsigned property_id,
-                                           unsigned data, void* datap, void* reserved)
+                                           unsigned data, particle::protocol::connection_properties_t* conn_prop, void* reserved)
 {
     ASSERT_ON_SYSTEM_THREAD();
     if (property_id == particle::protocol::Connection::PING)
     {
-        protocol->set_keepalive(data);
+        protocol->set_keepalive(data, conn_prop->keepalive_source);
+    } else if (property_id == particle::protocol::Connection::FAST_OTA)
+    {
+        protocol->set_fast_ota(data);
     }
     return 0;
 }
@@ -205,6 +208,12 @@ system_tick_t spark_protocol_time_last_synced(ProtocolFacade* protocol, time_t* 
     (void)reserved;
     return protocol->time_last_synced(tm);
 }
+
+int spark_protocol_get_describe_data(ProtocolFacade* protocol, spark_protocol_describe_data* data, void* reserved)
+{
+	return protocol->get_describe_data(data, reserved);
+}
+
 
 #else // !PARTICLE_PROTOCOL
 
@@ -311,7 +320,7 @@ void spark_protocol_get_product_details(SparkProtocol* protocol, product_details
 }
 
 int spark_protocol_set_connection_property(SparkProtocol* protocol, unsigned property_id,
-                                           unsigned data, void* datap, void* reserved)
+                                           unsigned data, particle::protocol::connection_properties_t* conn_prop, void* reserved)
 {
     return 0;
 }
@@ -332,5 +341,10 @@ system_tick_t spark_protocol_time_last_synced(SparkProtocol* protocol, time_t* t
     (void)reserved;
     return protocol->time_last_synced(tm);
 }
+
+int spark_protocol_get_describe_data(ProtocolFacade* protocol, spark_protocol_describe_data* data, void* reserved) {
+	return -1;
+}
+
 
 #endif
