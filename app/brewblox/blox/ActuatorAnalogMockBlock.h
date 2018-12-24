@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ActuatorAnalogConstrained.h"
+#include "ActuatorAnalogConstraintsProto.h"
 #include "ActuatorAnalogMock.h"
 #include "blox/Block.h"
 #include "blox/FieldTags.h"
@@ -8,11 +9,14 @@
 
 class ActuatorAnalogMockBlock : public Block<BrewbloxOptions_BlockType_ActuatorAnalogMock> {
 private:
+    cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     ActuatorAnalogMock actuator = ActuatorAnalogMock(0, 0, 100);
-    ActuatorAnalogConstrained constrained = ActuatorAnalogConstrained(actuator);
+    ActuatorAnalogConstrained constrained;
 
 public:
-    ActuatorAnalogMockBlock()
+    ActuatorAnalogMockBlock(cbox::ObjectContainer& objects)
+        : objectsRef(objects)
+        , constrained(actuator)
     {
     }
 
@@ -21,11 +25,12 @@ public:
         blox_ActuatorAnalogMock newData = blox_ActuatorAnalogMock_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
         if (result == cbox::CboxError::OK) {
-            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             actuator.minSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.minSetting));
             actuator.maxSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.maxSetting));
             actuator.minValue(cnl::wrap<ActuatorAnalog::value_t>(newData.minValue));
             actuator.maxValue(cnl::wrap<ActuatorAnalog::value_t>(newData.maxValue));
+            setAnalogConstraints(newData.constrainedBy, constrained, objectsRef);
+            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
         }
         return result;
     }
@@ -51,6 +56,8 @@ public:
         message.minValue = cnl::unwrap(actuator.minValue());
         message.maxValue = cnl::unwrap(actuator.maxValue());
 
+        getAnalogConstraints(message.constrainedBy, constrained);
+
         stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
         return streamProtoTo(out, &message, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
     }
@@ -64,6 +71,8 @@ public:
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
         message.maxValue = cnl::unwrap(actuator.maxValue());
+
+        getAnalogConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
     }

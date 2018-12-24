@@ -128,7 +128,7 @@ makeBrewBloxBox()
         {SetpointSimpleBlock::staticTypeId(), std::make_shared<SetpointSimpleBlock>},
         {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_shared<SetpointSensorPairBlock>(objects); }},
         {TempSensorMockBlock::staticTypeId(), std::make_shared<TempSensorMockBlock>},
-        {ActuatorAnalogMockBlock::staticTypeId(), std::make_shared<ActuatorAnalogMockBlock>},
+        {ActuatorAnalogMockBlock::staticTypeId(), []() { return std::make_shared<ActuatorAnalogMockBlock>(objects); }},
         {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
