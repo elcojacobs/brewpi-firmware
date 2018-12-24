@@ -3,6 +3,7 @@
 #include "Setpoint.h"
 #include "Temperature.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/SetpointSimple.pb.h"
 
 class SetpointSimpleBlock : public Block<BrewbloxOptions_BlockType_SetpointSimple> {
@@ -19,8 +20,8 @@ public:
         blox_SetpointSimple newData = blox_SetpointSimple_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetpointSimple_fields, blox_SetpointSimple_size);
         if (result == cbox::CboxError::OK) {
-            setpoint.setting(cnl::wrap<temp_t>(newData.setting));
             setpoint.valid(newData.enabled);
+            setpoint.setting(cnl::wrap<temp_t>(newData.setpoint));
         }
         return result;
     }
@@ -28,8 +29,18 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SetpointSimple message = blox_SetpointSimple_init_zero;
-        message.setting = cnl::unwrap(setpoint.setting());
+        FieldTags stripped;
+
         message.enabled = setpoint.valid();
+        message.setpoint = cnl::unwrap(setpoint.setting());
+
+        if (message.enabled) {
+            message.setting = message.setpoint;
+        } else {
+            stripped.add(blox_SetpointSimple_setting_tag);
+        };
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
 
         return streamProtoTo(out, &message, blox_SetpointSimple_fields, blox_SetpointSimple_size);
     }

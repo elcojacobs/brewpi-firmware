@@ -35,6 +35,7 @@ public:
 private:
     temp_t m_current = 0;
     bool m_valid = false;
+    bool m_enabled = true;
     const ticks_seconds_t& m_deviceStartTime;
 
     std::vector<Point> m_points;
@@ -101,16 +102,26 @@ public:
         // setting cannot be set using Setpoint base class
     }
 
+    bool enabled() const
+    {
+        return m_enabled;
+    }
+
+    void enabled(bool v)
+    {
+        m_enabled = v;
+    }
+
     virtual bool
     valid() const override final
     {
-        return m_valid;
+        return m_enabled && m_valid;
     }
 
     virtual void
     valid(bool v) override final
     {
-        // valid cannot be set using Setpoint base class
+        m_enabled = v;
     }
 
     const std::vector<Point>& points() const

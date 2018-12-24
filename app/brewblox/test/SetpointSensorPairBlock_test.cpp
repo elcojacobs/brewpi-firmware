@@ -65,7 +65,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     testBox.put(SetpointSimpleBlock::staticTypeId());
 
     blox::SetpointSimple newSetpoint;
-    newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
+    newSetpoint.set_setpoint(cnl::unwrap(temp_t(21.0)));
     newSetpoint.set_enabled(true);
     testBox.put(newSetpoint);
 

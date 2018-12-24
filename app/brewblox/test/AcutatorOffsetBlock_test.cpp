@@ -58,7 +58,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
     testBox.put(SetpointSimpleBlock::staticTypeId());
 
     auto newSetpoint1 = blox::SetpointSimple();
-    newSetpoint1.set_setting(cnl::unwrap(temp_t(20.0)));
+    newSetpoint1.set_setpoint(cnl::unwrap(temp_t(20.0)));
     newSetpoint1.set_enabled(true);
     testBox.put(newSetpoint1);
 
@@ -100,7 +100,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
     testBox.put(SetpointSimpleBlock::staticTypeId());
 
     auto newSetpoint2 = blox::SetpointSimple();
-    newSetpoint2.set_setting(cnl::unwrap(temp_t(20.0)));
+    newSetpoint2.set_setpoint(cnl::unwrap(temp_t(20.0)));
     newSetpoint2.set_enabled(true);
     testBox.put(newSetpoint2);
 

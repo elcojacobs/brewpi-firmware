@@ -56,7 +56,6 @@ public:
     virtual void setting(const temp_t& val) override final
     {
         m_setting = val;
-        m_enabled = true;
     }
 
     virtual bool valid() const override final

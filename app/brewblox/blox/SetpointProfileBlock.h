@@ -2,6 +2,7 @@
 
 #include "SetpointProfile.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 #include "proto/cpp/SetpointProfile.pb.h"
@@ -64,8 +65,17 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SetpointProfile message = blox_SetpointProfile_init_zero;
+        FieldTags stripped;
         message.points.funcs.encode = &streamPointsOut;
         message.points.arg = const_cast<std::vector<Point>*>(&profile.points());
+
+        message.enabled = profile.enabled();
+        if (profile.valid()) {
+            message.setting = cnl::unwrap(profile.setting());
+        } else {
+            stripped.add(blox_SetpointProfile_setting_tag);
+        };
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
         cbox::CboxError result = streamProtoTo(out, &message, blox_SetpointProfile_fields, std::numeric_limits<size_t>::max() - 1);
         return result;
     }
