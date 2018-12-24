@@ -13,5 +13,7 @@ message SetpointProfile {
         sint32 temperature = 2 [(brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
     }
 
+    
     repeated Point points = 1;
+    sint32 setting = 2 [ (brewblox).logged = true, (brewblox).readonly = true, (brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
 }
