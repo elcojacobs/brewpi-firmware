@@ -14,6 +14,35 @@ static CellularNetProv cellularNetProv = CELLULAR_NETPROV_TELEFONICA;
 // CELLULAR_NET_PROVIDER_DATA[CELLULAR_NETPROV_MAX - 1] is the last provider record
 const CellularNetProvData CELLULAR_NET_PROVIDER_DATA[] = { DEFINE_NET_PROVIDER_DATA };
 
+namespace
+{
+
+const char* defaultOrUserApn(const CellularCredentials& cred)
+{
+    if ((cred.apn && *cred.apn) || (cred.username && *cred.username) || (cred.password && *cred.password)) {
+        // Use user-provided APN
+        return cred.apn;
+    } else {
+        // Determine APN based on IMSI
+        auto ret = cellular_imsi_to_network_provider(nullptr);
+        if (ret != 0) {
+            // Should never get here since we always return 0 from above
+            return cred.apn;
+        }
+        // If we are potentially still defaulting to Telefonica, check for R410 modem type
+        if (cellularNetProv == CELLULAR_NETPROV_TELEFONICA) {
+            // Determine APN based on Modem Type
+            const DevStatus* const status = electronMDM.getDevStatus();
+            if (status->dev == DEV_SARA_R410) {
+                cellularNetProv = CELLULAR_NETPROV_KORE;
+            }
+        }
+        return CELLULAR_NET_PROVIDER_DATA[cellularNetProv].apn;
+    }
+}
+
+} // namespace
+
 #if defined(MODULAR_FIRMWARE) && MODULAR_FIRMWARE
 
 static HAL_NET_Callbacks netCallbacks = { 0 };
@@ -99,18 +128,18 @@ cellular_result_t  cellular_pdp_activate(CellularCredentials* connect, void* res
 
 cellular_result_t  cellular_pdp_deactivate(void* reserved)
 {
-    CHECK_SUCCESS(electronMDM.disconnect());
+    CHECK_SUCCESS(electronMDM.deactivate());
     return 0;
 }
 
 cellular_result_t  cellular_gprs_attach(CellularCredentials* connect, void* reserved)
 {
-    if (strcmp(connect->apn,"") != 0 || strcmp(connect->username,"") != 0 || strcmp(connect->password,"") != 0 ) {
-        CHECK_SUCCESS(electronMDM.join(connect->apn, connect->username, connect->password));
-    }
-    else {
-        CHECK_SUCCESS(electronMDM.join(CELLULAR_NET_PROVIDER_DATA[cellularNetProv].apn, NULL, NULL));
-    }
+    const char* const apn = defaultOrUserApn(*connect);
+    CHECK_SUCCESS(electronMDM.join(apn, connect->username, connect->password));
+    // These callbacks have been invoked in the system code previously, moving them to HAL for consistency
+    // and backward compatibility
+    HAL_NET_notify_connected();
+    HAL_NET_notify_dhcp(true);
     return 0;
 }
 
@@ -118,6 +147,22 @@ cellular_result_t  cellular_gprs_detach(void* reserved)
 {
     CHECK_SUCCESS(electronMDM.detach());
     HAL_NET_notify_disconnected();
+    return 0;
+}
+
+cellular_result_t cellular_connect(void* reserved)
+{
+    const CellularCredentials& cred = cellularCredentials;
+    const char* apn = cred.apn;
+    // TODO: Look for an APN based on IMSI for LTE providers as well
+    apn = defaultOrUserApn(cred);
+    CHECK_SUCCESS(electronMDM.connect(apn, cred.username, cred.password));
+    return 0;
+}
+
+cellular_result_t cellular_disconnect(void* reserved)
+{
+    CHECK_SUCCESS(electronMDM.disconnect());
     return 0;
 }
 
@@ -129,6 +174,7 @@ cellular_result_t cellular_device_info(CellularDevice* device, void* reserved)
     // this would benefit from an unsolicited event to call electronMDM.init() automatically on sim card insert)
     strncpy(device->imei, status->imei, sizeof(device->imei));
     strncpy(device->iccid, status->ccid, sizeof(device->iccid));
+    device->dev = status->dev;
     return 0;
 }
 
@@ -144,6 +190,7 @@ cellular_result_t cellular_fetch_ipconfig(CellularConfig* config, void* reserved
 
 cellular_result_t cellular_credentials_set(const char* apn, const char* username, const char* password, void* reserved)
 {
+    // TODO: Store the credentials persistently in the module's NVM or DCT similarly to WLAN HAL
     cellularCredentials.apn = apn;
     cellularCredentials.username = username;
     cellularCredentials.password = password;
@@ -218,6 +265,11 @@ cellular_result_t _cellular_data_usage_set(CellularDataHal &data, const MDM_Data
 
 cellular_result_t cellular_data_usage_set(CellularDataHal* data, void* reserved)
 {
+    const DevStatus* const status = electronMDM.getDevStatus();
+    if (status->dev == DEV_SARA_R410) {
+        return -1;
+    }
+
     // First get a copy of the current data usage values
     MDM_DataUsage data_usage;
     bool rv = electronMDM.getDataUsage(data_usage);
@@ -260,6 +312,11 @@ cellular_result_t _cellular_data_usage_get(CellularDataHal& data, const MDM_Data
 
 cellular_result_t cellular_data_usage_get(CellularDataHal* data, void* reserved)
 {
+    const DevStatus* const status = electronMDM.getDevStatus();
+    if (status->dev == DEV_SARA_R410) {
+        return -1;
+    }
+
     // First get a copy of the current data usage values
     MDM_DataUsage data_usage;
     bool rv = electronMDM.getDataUsage(data_usage);
@@ -269,18 +326,33 @@ cellular_result_t cellular_data_usage_get(CellularDataHal* data, void* reserved)
 
 cellular_result_t cellular_band_select_set(MDM_BandSelect* bands, void* reserved)
 {
+    const DevStatus* const status = electronMDM.getDevStatus();
+    if (status->dev == DEV_SARA_R410) {
+        return -1;
+    }
+
     CHECK_SUCCESS(electronMDM.setBandSelect(*bands));
     return 0;
 }
 
 cellular_result_t cellular_band_select_get(MDM_BandSelect* bands, void* reserved)
 {
+    const DevStatus* const status = electronMDM.getDevStatus();
+    if (status->dev == DEV_SARA_R410) {
+        return -1;
+    }
+
     CHECK_SUCCESS(electronMDM.getBandSelect(*bands));
     return 0;
 }
 
 cellular_result_t cellular_band_available_get(MDM_BandSelect* bands, void* reserved)
 {
+    const DevStatus* const status = electronMDM.getDevStatus();
+    if (status->dev == DEV_SARA_R410) {
+        return -1;
+    }
+
     CHECK_SUCCESS(electronMDM.getBandAvailable(*bands));
     return 0;
 }

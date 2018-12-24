@@ -88,6 +88,13 @@ unsigned long getNTPClientTime(void)
     // timeout after 10 secs
     while(millis() - _millis < 10000)
     {
+
+#if Wiring_WiFi
+        timeServer = WiFi.resolve("time-a.timefreq.bldrdoc.gov");
+#elif Wiring_Cellular
+        timeServer = Cellular.resolve("time-a.timefreq.bldrdoc.gov");
+#endif
+
         sendNTPpacket(timeServer); // send an NTP packet to a time server
 
         delay(1000);

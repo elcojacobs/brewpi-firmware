@@ -98,9 +98,6 @@
                 "clear": false
             },
             "problemMatcher": "$gcc",
-            "dependsOn": [
-                "build_and_touch_gcc"
-            ]
         },
         {
             "label": "compile proto",

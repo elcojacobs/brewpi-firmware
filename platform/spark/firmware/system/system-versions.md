@@ -48,6 +48,15 @@
 | 101 (200)[1] | 300 | 0.8.0-rc.1 |      (Photon, P1, Electron) |
 | 101 | 301 | 0.8.0-rc.2 |               (Photon, P1, Electron) |
 | 201 | 302 | 0.8.0-rc.3 |         (Core, Photon, P1, Electron) |
+| 201 | 303 | 0.8.0-rc.4 |         (Core, Photon, P1, Electron) |
+| 201 | 304 | 0.8.0-rc.5 |         (Core, Photon, P1, Electron) |
+| 201 | 305 | 0.8.0-rc.6 |         (Core, Photon, P1, Electron) |
+| 201 | 306 | 0.8.0-rc.7 |         (Core, Photon, P1, Electron) |
+| 201 | 307 | 0.8.0-rc.8 |         (Core, Photon, P1, Electron) |
+| 201 | 308 | 0.8.0-rc.9 |         (Core, Photon, P1, Electron) |
+| 201 | 309 | 0.8.0-rc.10|         (Core, Photon, P1, Electron) |
+| 201 | 310 | 0.8.0-rc.11|         (Core, Photon, P1, Electron) |
+| 201 | 311 | 0.8.0-rc.12|         (Core, Photon, P1, Electron) |
 
 [1] For 0.8.0-rc.1, The v101 bootloader was also released in the Github releases as v200. Thus the next released bootloader in the 0.8.x line should be v201. As of 4/5/2018: 22 device had v200 bootloaders.
 

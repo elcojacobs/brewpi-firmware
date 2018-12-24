@@ -1,3 +1,88 @@
+## 0.8.0-rc.12
+
+### ENHANCEMENTS
+
+- [Electron/Photon/P1] Cache persistent feature flags ([#1640](https://github.com/particle-iot/firmware/pull/1640))
+- [Photon/P1] Memory usage optimizations ([#1635](https://github.com/particle-iot/firmware/pull/1635))
+
+### BUGFIXES
+
+- [Electron/Photon/P1] Fixes SOS in 0.8.0-rc.11 and also ensures button and OOM events are handled synchronously. Previously in multi-threaded applications the button handling may have been delayed to run within the application thread.  Now it is always handled immediately and should be noted that it is called from an ISR, so it is not advised to dynamically allocate memory in button event handlers. ([#1600](https://github.com/particle-iot/firmware/pull/1600)) ([#1650](https://github.com/particle-iot/firmware/pull/1650))
+- [Electron/Photon/P1] Do not disable interrupts on every system loop iteration ([#1622](https://github.com/particle-iot/firmware/pull/1622))
+- [Electron/Photon/P1] Wait for Wiring Thread to start ([#1528](https://github.com/particle-iot/firmware/pull/1528))
+- [Electron/LTE] Power Manager Watchdog Timer Fix ([#1581](https://github.com/particle-iot/firmware/pull/1581))
+- [Electron/LTE] AT+CNUM command causing registration failure on LTE devices ([#1627](https://github.com/particle-iot/firmware/pull/1627))
+- [Electron] `PMIC::getInputCurrentLimit()` cannot report values higher than 900mA ([#1581](https://github.com/particle-iot/firmware/pull/1581))
+- [Electron] Do not set the sticky skip hello after handshake ([#1624](https://github.com/particle-iot/firmware/pull/1624))
+- [Photon/P1] Invalidate sockets when turning WiFi off ([#1639](https://github.com/particle-iot/firmware/pull/1639))
+
+## 0.8.0-rc.11
+
+### ENHANCEMENTS
+
+- [Electron/Photon/P1] Do not check and lock bootloader sector write protection on every boot [ch17416] [#1578](https://github.com/particle-iot/firmware/pull/1578)
+
+### BUGFIXES
+
+- [Electron/LTE] adds 1 retry for UDP/TCP socket send in case of error [ch18789] [#1576](https://github.com/particle-iot/firmware/pull/1576)
+- [Electron/Photon/P1] Fixes recursive semaphore lock timeout [ch21928] [#1577](https://github.com/particle-iot/firmware/pull/1577)
+
+## 0.8.0-rc.10
+
+### BUGFIXES
+
+- [Electron/LTE] eDRX & Power Saving mode disabled by default [#1567](https://github.com/particle-iot/firmware/pull/1567)
+
+## 0.8.0-rc.9
+
+### BUGFIXES
+
+- [Electron/LTE] Fast OTA Fixes [#1558](https://github.com/particle-iot/firmware/pull/1558)
+
+## 0.8.0-rc.8
+
+**Note:** This is primarily a MFG. release for SARA-R410 LTE modules. The changes do touch code used on other Electron based platforms, but no other features or fixes are relevant for U260, U270, U201, or G350 modems.  This code has been tested on-device for all mentioned modem types with passing results.  Please let us know if you find any issues.
+
+### BUGFIXES
+
+- [Electron] Disables 30 second ping for Kore SIMs on SARA_R410 (default 23 minute ping re-applied)
+
+## 0.8.0-rc.7
+
+**Note:** This is primarily a MFG. release for SARA-R410 LTE modules. The changes do touch code used on other Electron based platforms, but no other features or fixes are relevant for U260, U270, U201, or G350 modems.  This code has been tested on-device for all mentioned modem types with passing results.  Please let us know if you find any issues.
+
+### BUGFIXES
+
+- [Electron] Bug fixes for SARA-R410 LTE E Series [#1547](https://github.com/particle-iot/firmware/pull/1547)
+
+## 0.8.0-rc.6
+
+**Note:** This is primarily a MFG. release for SARA-R410 LTE modules. The changes do touch code used on other Electron based platforms, but no other features or fixes are relevant for U260, U270, U201, or G350 modems.  This code has been tested on-device for all mentioned modem types with passing results.  Please let us know if you find any issues.
+
+### INTERNAL
+
+- [Electron] Fixes monolithic build [#1543](https://github.com/particle-iot/firmware/pull/1543)
+- [Electron] fixes sticker-rig issue with POWER_ON command [#1544](https://github.com/particle-iot/firmware/pull/1544)
+
+## 0.8.0-rc.5
+
+**Note:** This is primarily a MFG. release for SARA-R410 LTE modules. The changes do touch code used on other Electron based platforms, but no other features or fixes are relevant for U260, U270, U201, or G350 modems.  This code has been tested on-device for all mentioned modem types with passing results.  Please let us know if you find any issues.
+
+### ENHANCEMENTS
+
+- [Electron] Adds support for SARA-R410 to the Cellular HAL [#1532](https://github.com/particle-iot/firmware/pull/1532)
+
+## 0.8.0-rc.4
+
+### ENHANCEMENTS
+
+- [Electron/Photon/P1] Increase Device OS API argument lengths. More data in Functions, Variables, Publish, Subscribe... oh my! [#1537](https://github.com/particle-iot/firmware/pull/1537)
+
+### BUGFIXES
+
+- [Electron] `Particle.keepAlive()` API was broken since v0.6.2-rc.2 firmware on Electron where the System would override an early set User ping interval.  This required a workaround of updating the keepAlive after the System made a connection to the Cloud.  See issue #1482 for workaround. [#1536](https://github.com/particle-iot/firmware/pull/1536)
+- [Electron] Fixes missing URCs for received data during TX or RX socket operations. This caused the modem not to be able to receive further data properly until it re-connected to the Cloud which it would do automatically but usually after a short or longer period of time. [#1530](https://github.com/particle-iot/firmware/pull/1530)
+
 ## 0.8.0-rc.3
 
 ### ENHANCEMENTS
