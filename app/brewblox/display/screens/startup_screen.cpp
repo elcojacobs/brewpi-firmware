@@ -40,7 +40,7 @@ char stepTxt[32] = "Init board";
 char versionString[] = "BrewBlox " xstr(BUILD_NAME);
 
 D4D_DECLARE_STD_LABEL(scrStartup_version, versionString, 0, 140, 320, 15, FONT_REGULAR)
-D4D_DECLARE_STD_PROGRESS_BAR(scrStartup_progress, 80, 160, 160, 20, 0)
+D4D_DECLARE_STD_PROGRESS_BAR(scrStartup_progress, 80, 160, 160, 12, 0)
 D4D_DECLARE_STD_LABEL(scrStartup_step, stepTxt, 0, 180, 320, 15, FONT_REGULAR)
 
 char calibrate_str[] = "Tap screen to re-calibrate touch";
@@ -56,6 +56,7 @@ D4D_DECLARE_SCREEN_END()
 void
 StartupScreen::activate()
 {
+    D4D_EnableObject(&scrStartup_txt_calibrate, D4D_FALSE);
     D4D_ActivateScreen(&screen_startup, D4D_TRUE);
 }
 

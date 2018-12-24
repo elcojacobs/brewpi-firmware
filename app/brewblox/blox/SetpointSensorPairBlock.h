@@ -3,11 +3,12 @@
 #include "SetpointSensorPair.h"
 #include "SetpointSensorPair.pb.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 
 using std::placeholders::_1;
 
-class SetpointSensorPairBlock : public Block<blox_SetpointSensorPair_msgid> {
+class SetpointSensorPairBlock : public Block<BrewbloxOptions_BlockType_SetpointSensorPair> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
     cbox::CboxPtr<Setpoint> setpoint;
@@ -26,7 +27,7 @@ public
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_SetpointSensorPair newData;
+        blox_SetpointSensorPair newData = blox_SetpointSensorPair_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
@@ -38,21 +39,29 @@ public
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointSensorPair message;
+        blox_SetpointSensorPair message = blox_SetpointSensorPair_init_zero;
+        FieldTags stripped;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensorValue = cnl::unwrap(pair.value());
-        message.setpointValue = cnl::unwrap(pair.setting());
-        message.sensorValid = sensor.valid();
-        message.setpointValid = setpoint.valid();
-        message.valid = pair.valid();
+        if (pair.valueValid()) {
+            message.sensorValue = cnl::unwrap(pair.value());
+        } else {
+            stripped.add(blox_SetpointSensorPair_sensorValue_tag);
+        }
+        if (pair.settingValid()) {
+            message.setpointValue = cnl::unwrap(pair.setting());
+        } else {
+            stripped.add(blox_SetpointSensorPair_setpointValue_tag);
+        };
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
 
         return streamProtoTo(out, &message, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointSensorPair message;
+        blox_SetpointSensorPair message = blox_SetpointSensorPair_init_zero;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
 
@@ -66,7 +75,7 @@ public
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_SetpointSensorPair_msgid) {
+        if (iface == BrewbloxOptions_BlockType_SetpointSensorPair) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<ProcessValue<temp_t>>()) {
@@ -82,6 +91,11 @@ public
     }
 
     SetpointSensorPair& get()
+    {
+        return pair;
+    }
+
+    const SetpointSensorPair& get() const
     {
         return pair;
     }

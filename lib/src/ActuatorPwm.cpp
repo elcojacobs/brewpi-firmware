@@ -13,7 +13,7 @@ ActuatorPwm::ActuatorPwm(
 void
 ActuatorPwm::setting(value_t const& val)
 {
-    if (valid()) {
+    if (settingValid()) {
         m_dutySetting = std::clamp(val, value_t(0), value_t(100));
         m_dutyTime = duration_millis_t((m_dutySetting * m_period) / value_t(100));
     }
@@ -139,7 +139,7 @@ ActuatorPwm::update(const update_t& now)
 }
 
 bool
-ActuatorPwm::valid() const
+ActuatorPwm::valueValid() const
 {
     if (auto actPtr = m_target()) {
         return m_valid && actPtr->state() != State::Unknown;
@@ -147,8 +147,14 @@ ActuatorPwm::valid() const
     return false;
 }
 
+bool
+ActuatorPwm::settingValid() const
+{
+    return valueValid();
+}
+
 void
-ActuatorPwm::valid(bool v)
+ActuatorPwm::settingValid(bool v)
 {
     if (!v) {
         if (auto actPtr = m_target()) {
@@ -157,13 +163,4 @@ ActuatorPwm::valid(bool v)
         setting(0);
     }
     m_valid = v;
-}
-
-ActuatorPwm::State
-ActuatorPwm::targetState() const
-{
-    if (auto actPtr = m_target()) {
-        return actPtr->state();
-    }
-    return State::Unknown;
 }

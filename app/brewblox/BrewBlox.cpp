@@ -22,10 +22,12 @@
 #include "Logger.h"
 #include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
+#include "blox/ActuatorDS2413Block.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
+#include "blox/DS2413Block.h"
 #include "blox/DisplaySettingsBlock.h"
 #include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
@@ -126,14 +128,15 @@ makeBrewBloxBox()
         {SetpointSimpleBlock::staticTypeId(), std::make_shared<SetpointSimpleBlock>},
         {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_shared<SetpointSensorPairBlock>(objects); }},
         {TempSensorMockBlock::staticTypeId(), std::make_shared<TempSensorMockBlock>},
-        {ActuatorAnalogMockBlock::staticTypeId(), std::make_shared<ActuatorAnalogMockBlock>},
+        {ActuatorAnalogMockBlock::staticTypeId(), []() { return std::make_shared<ActuatorAnalogMockBlock>(objects); }},
         {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
         {BalancerBlock::staticTypeId(), std::make_shared<BalancerBlock>},
         {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
         {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeRef()); }},
-    };
+        {DS2413Block::staticTypeId(), std::make_shared<DS2413Block>},
+        {ActuatorDS2413Block::staticTypeId(), []() { return std::make_shared<ActuatorDS2413Block>(objects); }}};
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);

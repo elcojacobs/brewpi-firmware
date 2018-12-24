@@ -3,9 +3,10 @@
 #include "Setpoint.h"
 #include "Temperature.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/SetpointSimple.pb.h"
 
-class SetpointSimpleBlock : public Block<blox_SetpointSimple_msgid> {
+class SetpointSimpleBlock : public Block<BrewbloxOptions_BlockType_SetpointSimple> {
 private:
     SetpointSimple setpoint;
 
@@ -16,20 +17,30 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_SetpointSimple newData;
+        blox_SetpointSimple newData = blox_SetpointSimple_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetpointSimple_fields, blox_SetpointSimple_size);
         if (result == cbox::CboxError::OK) {
-            setpoint.setting(cnl::wrap<temp_t>(newData.setting));
-            setpoint.valid(newData.valid);
+            setpoint.valid(newData.enabled);
+            setpoint.setting(cnl::wrap<temp_t>(newData.setpoint));
         }
         return result;
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_SetpointSimple message;
-        message.setting = cnl::unwrap(setpoint.setting());
-        message.valid = setpoint.valid();
+        blox_SetpointSimple message = blox_SetpointSimple_init_zero;
+        FieldTags stripped;
+
+        message.enabled = setpoint.valid();
+        message.setpoint = cnl::unwrap(setpoint.setting());
+
+        if (message.enabled) {
+            message.setting = message.setpoint;
+        } else {
+            stripped.add(blox_SetpointSimple_setting_tag);
+        };
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
 
         return streamProtoTo(out, &message, blox_SetpointSimple_fields, blox_SetpointSimple_size);
     }
@@ -46,7 +57,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_SetpointSimple_msgid) {
+        if (iface == BrewbloxOptions_BlockType_SetpointSimple) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<Setpoint>()) {

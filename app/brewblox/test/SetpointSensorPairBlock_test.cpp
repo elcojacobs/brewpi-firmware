@@ -65,8 +65,8 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     testBox.put(SetpointSimpleBlock::staticTypeId());
 
     blox::SetpointSimple newSetpoint;
-    newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
-    newSetpoint.set_valid(true);
+    newSetpoint.set_setpoint(cnl::unwrap(temp_t(21.0)));
+    newSetpoint.set_enabled(true);
     testBox.put(newSetpoint);
 
     testBox.processInput();
@@ -94,7 +94,28 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     testBox.processInputToProto(decoded);
     CHECK(testBox.lastReplyHasStatusOk());
     CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 "
-                                        "setpointValid: true sensorValid: true "
-                                        "setpointValue: 86016 sensorValue: 81920 "
-                                        "valid: true");
+                                        "setpointValue: 86016 sensorValue: 81920");
+
+    WHEN("The sensor is invalid")
+    {
+        auto cboxPtr = brewbloxBox().makeCboxPtr<TempSensorMockBlock>(100);
+        auto ptr = cboxPtr.lock();
+        REQUIRE(ptr);
+
+        ptr->get().connected(false);
+
+        THEN("The input value is flagged as stripped field")
+        {
+            // read pair
+            testBox.put(commands::READ_OBJECT);
+            testBox.put(cbox::obj_id_t(102));
+
+            auto decoded = blox::SetpointSensorPair();
+            testBox.processInputToProto(decoded);
+            CHECK(testBox.lastReplyHasStatusOk());
+            CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 "
+                                                "setpointValue: 86016 "
+                                                "strippedFields: 6");
+        }
+    }
 }

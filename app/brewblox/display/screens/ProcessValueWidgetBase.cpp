@@ -19,15 +19,13 @@
 
 #include "ProcessValueWidgetBase.h"
 #include "BrewBlox.h"
-#include "ProcessValue.h"
-#include "Temperature.h"
 #include "d4d.hpp"
 
 ProcessValueWidgetBase::ProcessValueWidgetBase(WidgetWrapper& myWrapper)
     : WidgetBase(myWrapper)
     , lbl_relations{wrapper.pObj(), nullptr}
     , value{
-          {0, wrapper.cy / 2 - 10}, // D4D_POINT position
+          {0, wrapper.cy / 2 - 12}, // D4D_POINT position
           {wrapper.cx, 21},         // D4D_SIZE                              size;                 ///< Size of the object.
           0,                        // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,                  // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
@@ -41,7 +39,7 @@ ProcessValueWidgetBase::ProcessValueWidgetBase(WidgetWrapper& myWrapper)
           &valueData,               ///< Pointer on runtime object data.
       }
     , setting{
-          {0, 12},           // D4D_POINT position
+          {0, 8},            // D4D_POINT position
           {wrapper.cx, 15},  // D4D_SIZE                              size;                 ///< Size of the object.
           0,                 // D4D_COOR                              radius;               ///< Object corners radius.
           nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.

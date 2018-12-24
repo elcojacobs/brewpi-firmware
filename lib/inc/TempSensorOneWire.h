@@ -62,18 +62,11 @@ public:
     virtual temp_t value() const override final; // return cached value
     void update();                               // read from hardware sensor
 
-    void setAddress(OneWireAddress const& addr)
-    {
-        OneWireDevice::setDeviceAddress(addr);
-    }
     void setCalibration(temp_t const& calib)
     {
         m_calibrationOffset = calib;
     }
-    OneWireAddress getAddress() const
-    {
-        return OneWireDevice::getDeviceAddress();
-    }
+
     temp_t getCalibration() const
     {
         return m_calibrationOffset;

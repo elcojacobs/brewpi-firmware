@@ -7,7 +7,7 @@ lcov --zerocounters --directory .
 
 echo "running lcov initial"
 lcov -q --capture --initial --directory . --output-file coverage/base.info
-./runner
+./cbox_test_runner
 
 echo "running lcov"
 lcov -q --capture --directory . --output-file coverage/test.info

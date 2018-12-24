@@ -32,7 +32,7 @@ protected:
 
     const D4D_OBJECT* lbl_relations[2];
 
-    D4D_STR_PROPERTIES value_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
+    D4D_STR_PROPERTIES value_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
     D4D_STR_PROPERTIES setting_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
     D4D_STR_PROPERTIES icons_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
 
@@ -55,34 +55,19 @@ public:
     void
     setValue(const char* buf)
     {
-        if (buf) {
-            D4D_SetText(&value, buf);
-            D4D_EnableObject(&value, true);
-            return;
-        }
-        D4D_EnableObject(&value, false);
+        setAndEnable(&value, buf);
     }
 
     void
     setSetting(const char* buf)
     {
-        if (buf) {
-            D4D_SetText(&setting, buf);
-            D4D_EnableObject(&setting, true);
-            return;
-        }
-        D4D_EnableObject(&setting, false);
+        setAndEnable(&setting, buf);
     }
 
     void
     setIcons(const char* buf)
     {
-        if (buf) {
-            D4D_SetText(&icons, buf);
-            D4D_EnableObject(&icons, true);
-            return;
-        }
-        D4D_EnableObject(&icons, false);
+        setAndEnable(&icons, buf);
     }
 
     void

@@ -3,11 +3,12 @@
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorDigitalConstraintsProto.h"
 #include "ActuatorPin.h"
+#include "FieldTags.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorPin.pb.h"
 #include <cstdint>
 
-class ActuatorPinBlock : public Block<blox_ActuatorPin_msgid> {
+class ActuatorPinBlock : public Block<BrewbloxOptions_BlockType_ActuatorPin> {
 private:
     cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     ActuatorPin actuator;
@@ -24,7 +25,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorPin newData;
+        blox_ActuatorPin newData = blox_ActuatorPin_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
             actuator.invert(newData.invert);
@@ -36,17 +37,34 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPin message = blox_ActuatorPin_init_default;
-        message.state = blox_AD_State(actuator.state());
+        blox_ActuatorPin message = blox_ActuatorPin_init_zero;
+        FieldTags stripped;
+
+        auto state = actuator.state();
+        if (state == ActuatorDigital::State::Unknown) {
+            stripped.add(blox_ActuatorPin_state_tag);
+        } else {
+            message.state = blox_AD_State(state);
+        }
+
         message.invert = actuator.invert();
         getDigitalConstraints(message.constrainedBy, constrained);
 
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
         return streamProtoTo(out, &message, blox_ActuatorPin_fields, blox_ActuatorPin_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        return streamTo(out);
+        blox_ActuatorPin message = blox_ActuatorPin_init_zero;
+        FieldTags stripped;
+
+        message.state = blox_AD_State(actuator.state());
+        message.invert = actuator.invert();
+
+        getDigitalConstraints(message.constrainedBy, constrained);
+
+        return streamProtoTo(out, &message, blox_ActuatorPin_fields, blox_ActuatorPin_size);
     }
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
@@ -57,7 +75,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_ActuatorPin_msgid) {
+        if (iface == BrewbloxOptions_BlockType_ActuatorPin) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<ActuatorDigitalConstrained>()) {

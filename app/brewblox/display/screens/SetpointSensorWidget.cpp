@@ -17,12 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrewBlox.h"
 #include "SetpointSensorWidget.h"
+#include "BrewBlox.h"
 
 SetpointSensorWidget::SetpointSensorWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
     : ProcessValueWidgetBase(myWrapper)
-    , lookup(brewbloxBox().makeCboxPtr<SetpointSensorPair>(id))
+    , lookup(brewbloxBox().makeCboxPtr<SetpointSensorPairBlock>(id))
 {
     setClickHandler(this, onClickStatic);
 }
@@ -32,17 +32,18 @@ SetpointSensorWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
+        auto pair = ptr->get();
 
         char icons[3] = {0};
-        if (ptr->sensorValid()) {
-            setValue(temp_to_string(ptr->value(), 1).c_str());
+        if (pair.valueValid()) {
+            setValue(temp_to_string(pair.value(), 1).c_str());
             icons[0] = '\x29';
         } else {
             setValue(nullptr);
             icons[0] = '\x2B';
         }
-        if (ptr->setpointValid()) {
-            setSetting(temp_to_string(ptr->setting(), 1).c_str());
+        if (pair.settingValid()) {
+            setSetting(temp_to_string(pair.setting(), 1).c_str());
             icons[1] = '\x2A';
         } else {
             setSetting(nullptr);

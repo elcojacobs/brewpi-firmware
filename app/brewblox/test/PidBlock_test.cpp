@@ -60,8 +60,8 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     testBox.put(SetpointSimpleBlock::staticTypeId());
 
     blox::SetpointSimple newSetpoint;
-    newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
-    newSetpoint.set_valid(true);
+    newSetpoint.set_setpoint(cnl::unwrap(temp_t(21.0)));
+    newSetpoint.set_enabled(true);
     testBox.put(newSetpoint);
 
     testBox.processInput();
@@ -140,7 +140,6 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
 
     // only nonzero values are shown in the debug string
     CHECK(decoded.ShortDebugString() == "inputId: 102 outputId: 103 "
-                                        "inputValid: true outputValid: true "
                                         "inputValue: 81920 inputSetting: 86016 "
                                         "outputValue: 60518 outputSetting: 60518 "
                                         "filterThreshold: 4096 "

@@ -32,13 +32,13 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 
         CHECK(cAct.setting() == 0);
         CHECK(cAct.value() == 0);
-        CHECK(cAct.valid() == true);
+        CHECK(cAct.settingValid() == true);
 
         cAct.setting(50);
 
         CHECK(act.setting() == 50);
         CHECK(act.value() == 50);
-        CHECK(act.valid() == true);
+        CHECK(act.settingValid() == true);
 
         WHEN("A maximum constraint is added, the value is clipped at the maximum")
         {

@@ -18,51 +18,68 @@
  */
 
 #include "../BrewBlox.h"
+#include "BrewBloxTestBox.h"
 #include "SetpointSimple.test.pb.h"
-//#include "blox/Block.h"
 #include "blox/SetpointSimpleBlock.h"
-#include <catch.hpp>
-//#include "cbox/Box.h"
+#include "cbox/CboxPtr.h"
 #include "cbox/DataStreamIo.h"
+#include <catch.hpp>
 #include <sstream>
-//#include "cbox/Object.h"
-//#include "temperatureFormats.h"
-//#include <cstdio>
-//#include <memory>
 
 using namespace cbox;
 
 SCENARIO("A Bloc SetpointSimpleBlock")
 {
-    WHEN("a SetpointSimpleBlock receives protobuf settings, the new setting matches what was sent")
+    BrewBloxTestBox testBox;
+    using commands = cbox::Box::CommandID;
+
+    testBox.reset();
+    WHEN("a SetpointSimpleBlock is created")
     {
-        blox::SetpointSimple message;
-        message.set_setting(123);
-        std::stringstream ssIn;
 
-        message.SerializeToOstream(&ssIn);
-        ssIn << '\0'; // zero terminate
-        cbox::IStreamDataIn in(ssIn);
+        // create setpoint
+        testBox.put(commands::CREATE_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
+        testBox.put(uint8_t(0xFF));
+        testBox.put(SetpointSimpleBlock::staticTypeId());
 
-        SetpointSimpleBlock sp;
-        CboxError res = sp.streamFrom(in);
-        CHECK(res == CboxError::OK);
+        blox::SetpointSimple newSetpoint;
+        newSetpoint.set_setpoint(cnl::unwrap(temp_t(21.0)));
+        newSetpoint.set_enabled(true);
+        testBox.put(newSetpoint);
 
-        temp_t setting = sp.get().setting();
-        CHECK(cnl::unwrap(setting) == 123);
+        testBox.processInput();
+        CHECK(testBox.lastReplyHasStatusOk());
 
-        AND_WHEN("a SetpointSimpleBlock streams out protobuf settings, the output matches what was sent before")
+        // read setpoint
+        THEN("The setpoint settings match what was sent")
         {
-            std::stringstream ssOut;
-            cbox::OStreamDataOut out(ssOut);
+            testBox.put(commands::READ_OBJECT);
+            testBox.put(cbox::obj_id_t(100));
 
-            CboxError res = sp.streamTo(out);
-            CHECK(res == CboxError::OK);
+            auto decoded = blox::SetpointSimple();
+            testBox.processInputToProto(decoded);
+            CHECK(testBox.lastReplyHasStatusOk());
+            CHECK(decoded.ShortDebugString() == "setting: 86016 setpoint: 86016 enabled: true");
+        }
 
-            blox::SetpointSimple round_trip;
-            round_trip.ParseFromIstream(&ssOut);
+        AND_WHEN("The setpoint is disabled, the settting is a stripped field")
+        {
+            // create setpoint
+            testBox.put(commands::WRITE_OBJECT);
+            testBox.put(cbox::obj_id_t(100));
+            testBox.put(uint8_t(0xFF));
+            testBox.put(SetpointSimpleBlock::staticTypeId());
 
-            CHECK(message.DebugString() == round_trip.DebugString());
+            blox::SetpointSimple newSetpoint;
+            newSetpoint.set_setpoint(cnl::unwrap(temp_t(21.0)));
+            newSetpoint.set_enabled(false);
+            testBox.put(newSetpoint);
+
+            auto decoded = blox::SetpointSimple();
+            testBox.processInputToProto(decoded);
+            CHECK(testBox.lastReplyHasStatusOk());
+            CHECK(decoded.ShortDebugString() == "setpoint: 86016 strippedFields: 1");
         }
     }
 }

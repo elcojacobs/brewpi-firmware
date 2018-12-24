@@ -56,14 +56,22 @@ public:
      * @param a raw pointer to the same object, but for the interface implemented by T
      * @return a new shared pointer with the same ref counting block, but a different type and offset pointer
      */
+    template <class U>
     auto convert_ptr(std::shared_ptr<Object>&& ptr, void* thisPtr)
     {
-        auto p = reinterpret_cast<typename std::shared_ptr<T>::element_type*>(thisPtr);
-        return std::shared_ptr<T>(ptr, p);
+        auto p = reinterpret_cast<typename std::shared_ptr<U>::element_type*>(thisPtr);
+        return std::shared_ptr<U>(ptr, p);
     }
 
     std::shared_ptr<T>
     lock()
+    {
+        return lock_as<T>();
+    }
+
+    template <class U>
+    std::shared_ptr<U>
+    lock_as()
     {
         // try to lock the weak pointer we already had. If it cannot be locked, we need to do a lookup again
         std::shared_ptr<Object> sptr;
@@ -75,27 +83,34 @@ public:
         }
         if (sptr) {
             // if the lookup succeeded, check if the Object implements the requested interface using the object types
-            auto requestedType = interfaceId<T>();
+            auto requestedType = interfaceId<U>();
             void* thisPtr = sptr->implements(requestedType);
             if (thisPtr != nullptr) {
                 // If the object returned a non-zero pointer, it supports the interface
                 // If multiple-inheritance is involved, it is possible that the shared pointer and interface pointer
                 // do not point to the same address. That is why the this pointer is returned by the base that implements
                 // the interface. convert_ptr ensures the block managing the lifetime of the object is still used.
-                return convert_ptr(std::move(sptr), thisPtr);
+                return convert_ptr<U>(std::move(sptr), thisPtr);
             }
         }
         // the cast was not allowed, reset weak ptr
         ptr.reset();
         // return empty share pointer
-        return std::shared_ptr<T>();
+        return std::shared_ptr<U>();
+    }
+
+    template <class U>
+    std::shared_ptr<const U>
+    const_lock_as() const
+    {
+        return std::const_pointer_cast<const U>(
+            std::move(const_cast<CboxPtr<T>*>(this)->lock_as<U>()));
     }
 
     std::shared_ptr<const T>
     const_lock() const
     {
-        return std::const_pointer_cast<const T>(
-            std::move(const_cast<CboxPtr<T>*>(this)->lock()));
+        return const_lock_as<T>();
     }
 
     std::function<std::shared_ptr<T>()> lockFunctor()

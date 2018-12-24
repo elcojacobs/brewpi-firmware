@@ -113,12 +113,17 @@ public:
         m_maxValue = arg;
     }
 
-    bool valid() const override final
+    bool valueValid() const override final
     {
         return m_valid;
     }
 
-    void valid(bool v) override final
+    bool settingValid() const override final
+    {
+        return m_valid;
+    }
+
+    void settingValid(bool v) override final
     {
         m_valid = v;
     }

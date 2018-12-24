@@ -27,8 +27,8 @@
 
 class Pid {
 public:
-    using in_t = safe_elastic_fixed_point<11, 12, int32_t>;
-    using out_t = safe_elastic_fixed_point<11, 12, int32_t>;
+    using in_t = fp12_t;
+    using out_t = fp12_t;
     using integral_t = safe_elastic_fixed_point<11, 30, int64_t>;
     using derivative_t = safe_elastic_fixed_point<1, 23, int32_t>;
 
@@ -39,23 +39,17 @@ private:
     FpFilterChain<in_t> m_filter;
 
     // state
-    in_t m_error = 0;
-    in_t m_p = 0;
-    in_t m_i = 0;
-    in_t m_d = 0;
-    integral_t m_integral = 0;
-    derivative_t m_derivative = 0;
-
-    in_t m_inputSetting = 0;
-    in_t m_inputValue = 0;
-
-    out_t m_outputSetting = 0;
-    out_t m_outputValue = 0;
+    in_t m_error = in_t{0};
+    in_t m_p = in_t{0};
+    in_t m_i = in_t{0};
+    in_t m_d = in_t{0};
+    integral_t m_integral = integral_t{0};
+    derivative_t m_derivative = derivative_t{0};
 
     uint8_t m_inputFailureCount = 0;
 
     // settings
-    in_t m_kp = 0;              // proportional gain
+    in_t m_kp = in_t{0};        // proportional gain
     uint16_t m_ti = 0;          // integral time constant
     uint16_t m_td = 0;          // derivative time constant
     uint8_t m_filterChoice = 0; // input filter index
@@ -172,31 +166,11 @@ public:
         return m_active;
     }
 
-    auto inputSetting() const
-    {
-        return m_inputSetting;
-    }
-
-    auto inputValue() const
-    {
-        return m_inputValue;
-    }
-
-    auto outputSetting() const
-    {
-        return m_outputSetting;
-    }
-
-    auto outputValue() const
-    {
-        return m_outputValue;
-    }
-
 private:
     void active(bool state)
     {
         if (auto ptr = m_outputPtr()) {
-            ptr->valid(state);
+            ptr->settingValid(state);
         }
         m_active = state;
     }

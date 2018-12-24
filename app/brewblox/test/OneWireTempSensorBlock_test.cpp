@@ -43,7 +43,6 @@ SCENARIO("A TempSensorOneWireBlock")
         auto message = blox::TempSensorOneWire();
         message.set_address(12345678);
         message.set_offset(100);
-        message.set_valid(true);
         message.set_value(123);
 
         testBox.put(message);
@@ -61,8 +60,10 @@ SCENARIO("A TempSensorOneWireBlock")
         {
             CHECK(testBox.lastReplyHasStatusOk());
 
+            // the value is invalid and therefore added to stripped fields to distinguish from value zero
             CHECK(decoded.ShortDebugString() == "offset: 100 "
-                                                "address: 12345678");
+                                                "address: 12345678 "
+                                                "strippedFields: 1");
         }
 
         THEN("The writable settings match what was sent")
@@ -70,58 +71,13 @@ SCENARIO("A TempSensorOneWireBlock")
             auto lookup = brewbloxBox().makeCboxPtr<TempSensorOneWireBlock>(100);
             auto sensorPtr = lookup.lock();
             REQUIRE(sensorPtr);
-            CHECK(sensorPtr->get().getAddress() == 12345678);
+            CHECK(sensorPtr->get().getDeviceAddress() == 12345678);
             CHECK(sensorPtr->get().getCalibration() == cnl::wrap<temp_t>(100));
 
             AND_THEN("The values that are not writable are unchanged")
             {
                 CHECK(sensorPtr->get().value() == temp_t(0));
                 CHECK(sensorPtr->get().valid() == false);
-            }
-        }
-
-        WHEN("An object discovery command is received")
-        {
-            testBox.put(commands::DISCOVER_NEW_OBJECTS);
-            auto reply = testBox.processInput();
-            THEN("3 new objects are discovered")
-            {
-                CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("6500") + "," + cbox::addCrc("6600") + "," + cbox::addCrc("6700") + "\n");
-                AND_THEN("These objects can be used as temp sensor")
-                {
-                    auto s1 = brewbloxBox().makeCboxPtr<TempSensor>(101);
-                    auto s2 = brewbloxBox().makeCboxPtr<TempSensor>(102);
-                    auto s3 = brewbloxBox().makeCboxPtr<TempSensor>(103);
-
-                    CHECK(s1.lock());
-                    CHECK(s2.lock());
-                    CHECK(s3.lock());
-                }
-            }
-
-            AND_WHEN("The command is given for the second time")
-            {
-                testBox.put(commands::DISCOVER_NEW_OBJECTS);
-                auto reply = testBox.processInput();
-                THEN("No new objects are discovered")
-                {
-                    CHECK(reply == cbox::addCrc("0C") + "|0000\n");
-                }
-            }
-
-            AND_WHEN("One of the sensors is removed")
-            {
-                testBox.put(commands::DELETE_OBJECT);
-                testBox.put(cbox::obj_id_t(101));
-                testBox.processInput();
-                CHECK(testBox.lastReplyHasStatusOk());
-
-                THEN("It will be discovered again")
-                {
-                    testBox.put(commands::DISCOVER_NEW_OBJECTS);
-                    auto reply = testBox.processInput();
-                    CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("6800") + "\n");
-                }
             }
         }
     }

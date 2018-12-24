@@ -105,9 +105,9 @@ public:
         m_period = p;
     }
 
-    State targetState() const;
+    virtual bool valueValid() const override final;
 
-    virtual bool valid() const override final;
+    virtual bool settingValid() const override final;
 
-    virtual void valid(bool v) override final;
+    virtual void settingValid(bool v) override final;
 };

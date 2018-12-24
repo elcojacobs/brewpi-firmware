@@ -1,58 +1,78 @@
 #pragma once
 
 #include "ActuatorAnalogConstrained.h"
+#include "ActuatorAnalogConstraintsProto.h"
 #include "ActuatorAnalogMock.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/ActuatorAnalogMock.pb.h"
 
-class ActuatorAnalogMockBlock : public Block<blox_ActuatorAnalogMock_msgid> {
+class ActuatorAnalogMockBlock : public Block<BrewbloxOptions_BlockType_ActuatorAnalogMock> {
 private:
+    cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     ActuatorAnalogMock actuator = ActuatorAnalogMock(0, 0, 100);
-    ActuatorAnalogConstrained constrained = ActuatorAnalogConstrained(actuator);
+    ActuatorAnalogConstrained constrained;
 
 public:
-    ActuatorAnalogMockBlock()
+    ActuatorAnalogMockBlock(cbox::ObjectContainer& objects)
+        : objectsRef(objects)
+        , constrained(actuator)
     {
     }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorAnalogMock newData;
+        blox_ActuatorAnalogMock newData = blox_ActuatorAnalogMock_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
         if (result == cbox::CboxError::OK) {
-            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             actuator.minSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.minSetting));
             actuator.maxSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.maxSetting));
             actuator.minValue(cnl::wrap<ActuatorAnalog::value_t>(newData.minValue));
             actuator.maxValue(cnl::wrap<ActuatorAnalog::value_t>(newData.maxValue));
+            setAnalogConstraints(newData.constrainedBy, constrained, objectsRef);
+            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
         }
         return result;
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorAnalogMock message;
-        message.setting = cnl::unwrap(constrained.setting());
-        message.value = cnl::unwrap(constrained.value());
-        message.valid = constrained.valid();
+        blox_ActuatorAnalogMock message = blox_ActuatorAnalogMock_init_zero;
+        FieldTags stripped;
+
+        if (constrained.valueValid()) {
+            message.value = cnl::unwrap(constrained.value());
+        } else {
+            stripped.add(blox_ActuatorAnalogMock_value_tag);
+        }
+        if (constrained.settingValid()) {
+            message.setting = cnl::unwrap(constrained.setting());
+        } else {
+            stripped.add(blox_ActuatorAnalogMock_setting_tag);
+        };
 
         message.minSetting = cnl::unwrap(actuator.minSetting());
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
         message.maxValue = cnl::unwrap(actuator.maxValue());
 
+        getAnalogConstraints(message.constrainedBy, constrained);
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
         return streamProtoTo(out, &message, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorAnalogMock message;
+        blox_ActuatorAnalogMock message = blox_ActuatorAnalogMock_init_zero;
         message.setting = cnl::unwrap(constrained.setting());
 
         message.minSetting = cnl::unwrap(actuator.minSetting());
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
         message.maxValue = cnl::unwrap(actuator.maxValue());
+
+        getAnalogConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
     }
@@ -64,7 +84,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_ActuatorAnalogMock_msgid) {
+        if (iface == BrewbloxOptions_BlockType_ActuatorAnalogMock) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {

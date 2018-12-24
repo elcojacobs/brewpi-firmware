@@ -5,7 +5,7 @@
 #include "nanopb_callbacks.h"
 #include "proto/cpp/Mutex.pb.h"
 
-class MutexBlock : public Block<blox_Mutex_msgid> {
+class MutexBlock : public Block<BrewbloxOptions_BlockType_Mutex> {
 private:
     TimedMutex m_mutex;
 
@@ -16,18 +16,18 @@ public:
     virtual cbox::CboxError
     streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_Mutex newData = blox_Mutex_init_default;
+        blox_Mutex newData = blox_Mutex_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Mutex_fields, blox_Mutex_size);
         if (result == cbox::CboxError::OK) {
             m_mutex.differentActuatorWait(newData.differentActuatorWait);
-                }
+        }
         return result;
     }
 
     virtual cbox::CboxError
     streamTo(cbox::DataOut& out) const override final
     {
-        blox_Mutex message = blox_Mutex_init_default;
+        blox_Mutex message = blox_Mutex_init_zero;
         message.differentActuatorWait = m_mutex.differentActuatorWait();
 
         return streamProtoTo(out, &message, blox_Mutex_fields, blox_Mutex_size);
@@ -48,7 +48,7 @@ public:
     virtual void*
     implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_Mutex_msgid) {
+        if (iface == BrewbloxOptions_BlockType_Mutex) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<TimedMutex>()) {

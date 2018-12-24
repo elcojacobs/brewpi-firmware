@@ -27,11 +27,11 @@ namespace cbox {
 /**
  * Provides storage for a stream offset and length.
  */
-template <class Offset, class Length>
+template <typename Offset, typename Length>
 class StreamRegion {
 protected:
-    Offset _offset;
-    Length _length;
+    Offset _offset = 0;
+    Length _length = 0;
 
 public:
     Offset offset() { return _offset; }

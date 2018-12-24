@@ -234,19 +234,19 @@
 #define D4D_COLOR_BCKG_NORM D4D_COLOR_BLACK
 
 // standard disabled color fore
-#define D4D_COLOR_FORE_DISABLED D4D_COLOR_WHITE
+#define D4D_COLOR_FORE_DISABLED D4D_COLOR_LIGHT_GREY
 // standard disabled color background
-#define D4D_COLOR_BCKG_DISABLED D4D_COLOR_LIGHT_GREY
+#define D4D_COLOR_BCKG_DISABLED D4D_COLOR_BLACK
 
 // standard focus color fore
 #define D4D_COLOR_FORE_FOCUS D4D_COLOR_ORANGE
 // standard focus color background
-#define D4D_COLOR_BCKG_FOCUS D4D_COLOR_WHITE
+#define D4D_COLOR_BCKG_FOCUS D4D_COLOR_BLACK
 
 // standard capturing color fore
 #define D4D_COLOR_FORE_CAPTURE D4D_COLOR_BRIGHT_RED
 // standard capturing color background
-#define D4D_COLOR_BCKG_CAPTURE D4D_COLOR_WHITE
+#define D4D_COLOR_BCKG_CAPTURE D4D_COLOR_BLACK
 
 /******************************************************************************
 * Button Object
@@ -557,8 +557,8 @@
 * Colors
 ***********************/
 // standard slider colors
-#define D4D_COLOR_PRGRS_BAR_BAR_FORE D4D_COLOR_RGB(0, 0, 128)
-#define D4D_COLOR_PRGRS_BAR_BAR_END D4D_COLOR_RGB(0, 128, 128)
+#define D4D_COLOR_PRGRS_BAR_BAR_FORE D4D_COLOR_RGB(0, 64, 128)
+#define D4D_COLOR_PRGRS_BAR_BAR_END D4D_COLOR_RGB(64, 128, 128)
 #define D4D_COLOR_PRGRS_BAR_BAR_BCKG D4D_COLOR_BRIGHT_GREY
 
 /***********************

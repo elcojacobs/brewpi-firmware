@@ -19,12 +19,12 @@
 
 #pragma once
 #include "ProcessValueWidgetBase.h"
-#include "SetpointSensorPair.h"
+#include "blox/SetpointSensorPairBlock.h"
 #include "cbox/CboxPtr.h"
 
 class SetpointSensorWidget : public ProcessValueWidgetBase {
 private:
-    cbox::CboxPtr<SetpointSensorPair> lookup;
+    cbox::CboxPtr<SetpointSensorPairBlock> lookup;
 
 public:
     SetpointSensorWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);

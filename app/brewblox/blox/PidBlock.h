@@ -4,12 +4,13 @@
 #include "Pid.h"
 #include "ProcessValue.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/Pid.pb.h"
 
 #include "cbox/CboxPtr.h"
 
-class PidBlock : public Block<blox_Pid_msgid> {
+class PidBlock : public Block<BrewbloxOptions_BlockType_Pid> {
 private:
     cbox::CboxPtr<ProcessValue<Pid::in_t>> input;
     cbox::CboxPtr<ActuatorAnalogConstrained> output;
@@ -31,7 +32,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_Pid newData;
+        blox_Pid newData = blox_Pid_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_Pid_fields, blox_Pid_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
@@ -48,16 +49,42 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_Pid message = {0};
+        FieldTags stripped;
+        blox_Pid message = blox_Pid_init_zero;
         message.inputId = input.getId();
         message.outputId = output.getId();
 
-        message.inputValid = input.valid();
-        message.outputValid = output.valid();
-        message.inputValue = cnl::unwrap(pid.inputValue());
-        message.inputSetting = cnl::unwrap(pid.inputSetting());
-        message.outputValue = cnl::unwrap(pid.outputValue());
-        message.outputSetting = cnl::unwrap(pid.outputSetting());
+        if (auto ptr = input.const_lock()) {
+            if (ptr->valueValid()) {
+                message.inputValue = cnl::unwrap(ptr->value());
+            } else {
+                stripped.add(blox_Pid_inputValue_tag);
+            }
+            if (ptr->settingValid()) {
+                message.inputSetting = cnl::unwrap(ptr->setting());
+            } else {
+                stripped.add(blox_Pid_inputSetting_tag);
+            }
+        } else {
+            stripped.add(blox_Pid_inputSetting_tag);
+            stripped.add(blox_Pid_inputValue_tag);
+        }
+
+        if (auto ptr = output.const_lock()) {
+            if (ptr->valueValid()) {
+                message.outputValue = cnl::unwrap(ptr->value());
+            } else {
+                stripped.add(blox_Pid_outputValue_tag);
+            }
+            if (ptr->settingValid()) {
+                message.outputSetting = cnl::unwrap(ptr->setting());
+            } else {
+                stripped.add(blox_Pid_outputSetting_tag);
+            }
+        } else {
+            stripped.add(blox_Pid_outputSetting_tag);
+            stripped.add(blox_Pid_outputValue_tag);
+        }
 
         message.filter = blox_Pid_FilterChoice(pid.filterChoice());
         message.filterThreshold = cnl::unwrap(pid.filterThreshold());
@@ -73,12 +100,15 @@ public:
         message.integral = cnl::unwrap(Pid::out_t(pid.integral()));
         message.derivative = cnl::unwrap(pid.derivative());
 
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 4);
+
         return streamProtoTo(out, &message, blox_Pid_fields, blox_Pid_size);
     }
 
-    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    virtual cbox::CboxError
+    streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_Pid message = {0};
+        blox_Pid message = blox_Pid_init_zero;
         message.inputId = input.getId();
         message.outputId = output.getId();
         message.filter = blox_Pid_FilterChoice(pid.filterChoice());
@@ -91,14 +121,43 @@ public:
         return streamProtoTo(out, &message, blox_Pid_fields, blox_Pid_size);
     }
 
-    virtual cbox::update_t update(const cbox::update_t& now) override final
+    virtual cbox::update_t
+    update(const cbox::update_t& now) override final
     {
         pid.update();
         return update_1s(now);
     }
 
-    Pid& get()
+    virtual void*
+    implements(const cbox::obj_type_t& iface) override final
+    {
+        if (iface == BrewbloxOptions_BlockType_Pid) {
+            return this; // me!
+        }
+        return nullptr;
+    }
+
+    Pid&
+    get()
     {
         return pid;
+    }
+
+    const Pid&
+    get() const
+    {
+        return pid;
+    }
+
+    const auto&
+    getInputLookup() const
+    {
+        return input;
+    }
+
+    const auto&
+    getOutputLookup() const
+    {
+        return output;
     }
 };

@@ -7,7 +7,7 @@
 #include "nanopb_callbacks.h"
 #include "proto/cpp/Balancer.pb.h"
 
-class BalancerBlock : public Block<blox_Balancer_msgid> {
+class BalancerBlock : public Block<BrewbloxOptions_BlockType_Balancer> {
 public:
     using Balancer_t = Balancer<blox_AnalogConstraint_balanced_tag>;
 
@@ -47,7 +47,7 @@ public:
     virtual cbox::CboxError
     streamTo(cbox::DataOut& out) const override final
     {
-        blox_Balancer message;
+        blox_Balancer message = blox_Balancer_init_zero;
         message.clients.funcs.encode = streamBalancedActuators;
         message.clients.arg = const_cast<Balancer_t*>(&balancer); // arg is not const in message, but it is in callback
 
@@ -70,7 +70,7 @@ public:
     virtual void*
     implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_Balancer_msgid) {
+        if (iface == BrewbloxOptions_BlockType_Balancer) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<Balancer_t>()) {

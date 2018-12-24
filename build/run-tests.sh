@@ -13,7 +13,7 @@ fi
 # status $?
 echo "Running ControlBox unit tests"
 pushd "$MY_DIR/../controlbox/build/" > /dev/null
-./runner;
+./cbox_test_runner;
 (( result = $? ))
 status $result
 (( exit_status = exit_status || result ))
@@ -22,7 +22,7 @@ popd > /dev/null
 
 echo "Running BrewBlox unit tests"
 pushd "$MY_DIR/../app/brewblox/test/build" > /dev/null
-./runner;
+./brewblox_test_runner;
 (( result = $? ))
 status $result
 (( exit_status = exit_status || result ))

@@ -29,24 +29,28 @@ SCENARIO("ActuatorAnalogMock test")
 
         CHECK(act.setting() == 0);
         CHECK(act.value() == 0);
-        CHECK(act.valid() == true);
+        CHECK(act.settingValid() == true);
+        CHECK(act.valueValid() == true);
 
         act = ActuatorAnalogMock(50);
 
         CHECK(act.setting() == 50);
         CHECK(act.value() == 50);
-        CHECK(act.valid() == true);
+        CHECK(act.settingValid() == true);
+        CHECK(act.valueValid() == true);
 
         act = ActuatorAnalogMock(110, 0, 100);
 
         CHECK(act.setting() == 100);
         CHECK(act.value() == 100);
-        CHECK(act.valid() == true);
+        CHECK(act.settingValid() == true);
+        CHECK(act.valueValid() == true);
 
         act = ActuatorAnalogMock(-10, 5, 100);
 
         CHECK(act.setting() == 5);
         CHECK(act.value() == 5);
-        CHECK(act.valid() == true);
+        CHECK(act.settingValid() == true);
+        CHECK(act.valueValid() == true);
     }
 }

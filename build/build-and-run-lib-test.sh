@@ -18,7 +18,7 @@ make -s runner
 status $result
 (( exit_status = exit_status || result ))
 
-build/runner
+build/lib_test_runner
 (( result = $? ))
 status $result
 (( exit_status = exit_status || result ))

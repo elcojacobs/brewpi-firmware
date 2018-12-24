@@ -5,11 +5,12 @@
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorPwm.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/ActuatorPwm.pb.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
 
-class ActuatorPwmBlock : public Block<blox_ActuatorPwm_msgid> {
+class ActuatorPwmBlock : public Block<BrewbloxOptions_BlockType_ActuatorPwm> {
 private:
     cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     cbox::CboxPtr<ActuatorDigitalConstrained> actuator;
@@ -33,7 +34,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorPwm newData;
+        blox_ActuatorPwm newData = blox_ActuatorPwm_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
         if (result == cbox::CboxError::OK) {
             actuator.setId(newData.actuatorId);
@@ -46,21 +47,31 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPwm message;
+        blox_ActuatorPwm message = blox_ActuatorPwm_init_zero;
+        FieldTags stripped;
         message.actuatorId = actuator.getId();
-        message.actuatorValid = pwm.valid();
         message.period = pwm.period();
-        message.setting = cnl::unwrap(constrained.setting());
-        message.value = cnl::unwrap(constrained.value());
-        message.valid = constrained.valid();
+
+        if (constrained.valueValid()) {
+            message.value = cnl::unwrap(constrained.value());
+        } else {
+            stripped.add(blox_ActuatorPwm_value_tag);
+        }
+        if (constrained.settingValid()) {
+            message.setting = cnl::unwrap(constrained.setting());
+        } else {
+            stripped.add(blox_ActuatorPwm_setting_tag);
+        };
+
         getAnalogConstraints(message.constrainedBy, constrained);
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
 
         return streamProtoTo(out, &message, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPwm persisted = blox_ActuatorPwm_init_default;
+        blox_ActuatorPwm persisted = blox_ActuatorPwm_init_zero;
         persisted.actuatorId = actuator.getId();
         persisted.period = pwm.period();
         persisted.setting = cnl::unwrap(constrained.setting());
@@ -77,13 +88,8 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_ActuatorPwm_msgid) {
+        if (iface == BrewbloxOptions_BlockType_ActuatorPwm) {
             return this; // me!
-        }
-        if (iface == cbox::interfaceId<ActuatorPwm>()) {
-            // return the member that implements the interface in this case
-            ActuatorPwm* ptr = &pwm;
-            return ptr;
         }
         if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {
             // return the member that implements the interface in this case
@@ -98,12 +104,27 @@ public:
         return nullptr;
     }
 
+    const cbox::CboxPtr<ActuatorDigitalConstrained>& targetLookup() const
+    {
+        return actuator;
+    }
+
     ActuatorPwm& getPwm()
     {
         return pwm;
     }
 
+    const ActuatorPwm& getPwm() const
+    {
+        return pwm;
+    }
+
     ActuatorAnalogConstrained& getConstrained()
+    {
+        return constrained;
+    }
+
+    const ActuatorAnalogConstrained& getConstrained() const
     {
         return constrained;
     }

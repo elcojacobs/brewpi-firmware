@@ -1,9 +1,9 @@
 /*
  * Copyright 2018 BrewPi B.V.
  *
- * This file is part of Controlbox
+ * This file is part of BrewBlox
  *
- * Controlbox is free software: you can redistribute it and/or modify
+ * BrewBlox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
+ * along with BrewBlox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -22,12 +22,11 @@
 #include "Ticks.h"
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
-#include "cbox/ObjectBase.h"
 #include "proto/cpp/Ticks.pb.h"
 
 // provides a protobuf interface to the ticks object
 template <typename T>
-class TicksBlock : public cbox::ObjectBase<blox_Ticks_msgid> {
+class TicksBlock : public Block<BrewbloxOptions_BlockType_Ticks> {
     T& ticks;
 
 public:
@@ -39,7 +38,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_Ticks newData;
+        blox_Ticks newData = blox_Ticks_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Ticks_fields, blox_Ticks_size);
         if (result == cbox::CboxError::OK) {
             ticks.setNow(newData.secondsSinceEpoch);
@@ -49,7 +48,7 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_Ticks message;
+        blox_Ticks message = blox_Ticks_init_zero;
         message.secondsSinceEpoch = ticks.getNow();
         message.millisSinceBoot = ticks.millis();
 

@@ -403,9 +403,11 @@ public:
         return std::min(len, in.available());
     }
 
-    void setLength(stream_size_t len_)
+    void reduceLength(stream_size_t newLen)
     {
-        len = len_;
+        if (newLen < len) {
+            len = newLen; // only allow making region smaller
+        }
     }
 };
 

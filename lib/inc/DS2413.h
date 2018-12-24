@@ -35,9 +35,10 @@
  */
 class DS2413 : public OneWireDevice {
 public:
-    enum class Pio : char {
-        A = 'A',
-        B = 'B'
+    enum class Pio : uint8_t {
+        UNSET,
+        A,
+        B
     };
 
 private:
@@ -53,7 +54,8 @@ public:
     /**
      * Constructor, initializes cached state to 0xff, which is an invalid state to signal that the cache is not valid yet.
      */
-    DS2413(OneWire& oneWire, const OneWireAddress& address)
+
+    DS2413(OneWire& oneWire, OneWireAddress address = 0)
         : OneWireDevice(oneWire, address)
         , m_cachedState(0xff)
         , m_connected(false)
@@ -108,6 +110,12 @@ public:
      * @return true on success
      */
     bool sense(Pio pio, bool& result);
+
+    /**
+     * Return cached state. Upper nibble is equal to lower nibble if valid
+     */
+
+    uint8_t cachedState() const;
 
 private:
     // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2

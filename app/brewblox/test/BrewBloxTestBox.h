@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "AppTicks.h"
 #include "BrewBlox.h"
-#include "MockTicks.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/TicksBlock.h"
 #include "cbox/Box.h"
@@ -40,7 +40,7 @@ public:
     cbox::HexCrcDataOut inEncoder;
     ProtoDataOut inProto;
     bool lastReplyOk = false;
-    MockTicks& ticks;
+    TicksClass& ticks;
 
     BrewBloxTestBox()
         : in(std::make_shared<std::stringstream>())
@@ -49,7 +49,7 @@ public:
         , toHex(inOs)
         , inEncoder(toHex)
         , inProto(inEncoder)
-        , ticks(brewbloxBox().makeCboxPtr<TicksBlock<MockTicks>>(3).lock()->get())
+        , ticks(brewbloxBox().makeCboxPtr<TicksBlock<TicksClass>>(3).lock()->get())
     {
         testConnectionSource().add(in, out);
     }
@@ -124,7 +124,7 @@ public:
 
     void update(const cbox::update_t& now)
     {
-        ticks.reset(now);
+        ticks.ticksImpl().reset(now);
 
         brewbloxBox().update(now);
     }

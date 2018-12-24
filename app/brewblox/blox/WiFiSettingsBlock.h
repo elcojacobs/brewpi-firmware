@@ -1,9 +1,9 @@
 /*
  * Copyright 2018 BrewPi B.V.
  *
- * This file is part of Controlbox
+ * This file is part of BrewBlox
  *
- * Controlbox is free software: you can redistribute it and/or modify
+ * BrewBlox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
+ * along with BrewBlox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -24,7 +24,7 @@
 #include "proto/cpp/WiFiSettings.pb.h"
 
 // provides a protobuf interface to the read only system info
-class WiFiSettingsBlock : public cbox::ObjectBase<blox_WiFiSettings_msgid> {
+class WiFiSettingsBlock : public cbox::ObjectBase<BrewbloxOptions_BlockType_WiFiSettings> {
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final;
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final;

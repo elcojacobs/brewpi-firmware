@@ -6,7 +6,6 @@
  */
 
 #include "blox/Block.h"
-
 #include "cbox/DataStream.h"
 #include "nanopb_callbacks.h"
 

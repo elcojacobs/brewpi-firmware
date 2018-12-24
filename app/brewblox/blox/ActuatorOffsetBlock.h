@@ -4,11 +4,12 @@
 #include "ActuatorAnalogConstraintsProto.h"
 #include "ActuatorOffset.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/ActuatorOffset.pb.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
 
-class ActuatorOffsetBlock : public Block<blox_ActuatorOffset_msgid> {
+class ActuatorOffsetBlock : public Block<BrewbloxOptions_BlockType_ActuatorOffset> {
 private:
     cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     cbox::CboxPtr<SetpointSensorPair> target;
@@ -28,7 +29,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorOffset newData;
+        blox_ActuatorOffset newData = blox_ActuatorOffset_init_zero;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorOffset_fields, blox_ActuatorOffset_size);
         if (result == cbox::CboxError::OK) {
             target.setId(newData.targetId);
@@ -42,26 +43,35 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorOffset message;
+        blox_ActuatorOffset message = blox_ActuatorOffset_init_zero;
+
+        FieldTags stripped;
 
         message.targetId = target.getId();
-        message.targetValid = target.valid();
-
         message.referenceId = reference.getId();
         message.referenceSettingOrValue = blox_ActuatorOffset_SettingOrValue(actuator.selectedReference());
-        message.referenceValid = reference.valid();
 
-        message.setting = cnl::unwrap(constrained.setting());
-        message.value = cnl::unwrap(constrained.value());
-        message.valid = constrained.valid();
+        if (constrained.valueValid()) {
+            message.value = cnl::unwrap(constrained.value());
+        } else {
+            stripped.add(blox_ActuatorOffset_value_tag);
+        }
+        if (constrained.settingValid()) {
+            message.setting = cnl::unwrap(constrained.setting());
+        } else {
+            stripped.add(blox_ActuatorOffset_setting_tag);
+        };
+
         getAnalogConstraints(message.constrainedBy, constrained);
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 2);
 
         return streamProtoTo(out, &message, blox_ActuatorOffset_fields, blox_ActuatorOffset_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorOffset persisted = blox_ActuatorOffset_init_default;
+        blox_ActuatorOffset persisted = blox_ActuatorOffset_init_zero;
 
         persisted.targetId = target.getId();
         persisted.referenceId = reference.getId();
@@ -76,12 +86,13 @@ public:
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
         actuator.update();
+        constrained.update();
         return now + 1000;
     }
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_ActuatorOffset_msgid) {
+        if (iface == BrewbloxOptions_BlockType_ActuatorOffset) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {

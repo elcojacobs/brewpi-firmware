@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2018 BrewPi
  *
@@ -124,6 +122,26 @@ SCENARIO("A CboxPtr is a dynamic lookup that checks type compatibility and works
                 objects.deactivate(obj_id_t(100));
                 auto ptr4 = nameablePtr.lock();
                 CHECK(!ptr4);
+            }
+        }
+        THEN("A Cbox Ptr can be locked as a different type if it supports the interface")
+        {
+            auto ptr = liPtr.lock_as<Nameable>();
+            CHECK(ptr != nullptr);
+
+            // The offset it got matches static cast
+            CHECK(static_cast<Nameable*>(nameableLiPtr.lock().get()) == ptr.get());
+
+            auto const_ptr = liPtr.const_lock_as<Nameable>();
+            CHECK(const_ptr != nullptr);
+
+            // The offset it got matches static cast
+            CHECK(static_cast<const Nameable*>(nameableLiPtr.lock().get()) == const_ptr.get());
+
+            AND_THEN("A Cbox Ptr cannot be locked as a different type if it doesn't support the interface")
+            {
+                auto ptr = liPtr.lock_as<LongIntVectorObject>();
+                CHECK(ptr == nullptr);
             }
         }
     }

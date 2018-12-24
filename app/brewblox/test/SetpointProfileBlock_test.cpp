@@ -38,7 +38,6 @@ SCENARIO("A SetpointProfile block")
 
         testBox.reset();
 
-        // create mock sensor
         testBox.put(commands::CREATE_OBJECT);
         testBox.put(cbox::obj_id_t(100));
         testBox.put(uint8_t(0xFF));
@@ -119,8 +118,8 @@ SCENARIO("A SetpointProfile block")
                 auto decoded = blox::SetpointProfile();
                 testBox.processInputToProto(decoded);
                 CHECK(testBox.lastReplyHasStatusOk());
-
-                CHECK(decoded.ShortDebugString() == "points { time: 20010 temperature: 81920 } points { time: 20020 temperature: 86016 }");
+                // 20.5 * 4096 = 83968
+                CHECK(decoded.ShortDebugString() == "points { time: 20010 temperature: 81920 } points { time: 20020 temperature: 86016 } setting: 83968 enabled: true");
             }
         }
     }

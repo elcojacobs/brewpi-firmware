@@ -36,5 +36,10 @@ using safe_elastic_fixed_point = cnl::fixed_point<
 
 using fp12_t = safe_elastic_fixed_point<11, 12, int32_t>;
 
+struct fp12_v_t {
+    fp12_t value;
+    bool valid;
+};
+
 std::string
 to_string_dec(const fp12_t& t, uint8_t decimals);

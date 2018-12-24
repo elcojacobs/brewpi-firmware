@@ -29,7 +29,7 @@
 #include "proto/test/cpp/Balancer.test.pb.h"
 #include "proto/test/cpp/Mutex.test.pb.h"
 
-SCENARIO("Two PWM actuators can be constrained by a balancer")
+SCENARIO("Two PWM actuators can be constrained by a balancer", "[balancer]")
 {
     BrewBloxTestBox testBox;
     using commands = cbox::Box::CommandID;
@@ -197,14 +197,13 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto decoded = blox::ActuatorPwm();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
+        CHECK(decoded.ShortDebugString() == "actuatorId: 10 "
                                             "period: 4000 setting: 204800 "
                                             "constrainedBy { "
                                             "constraints { "
                                             "balanced { balancerId: 100 granted: 204800 } "
                                             "limiting: true } "
-                                            "unconstrained: 327680 } "
-                                            "valid: true");
+                                            "unconstrained: 327680 }");
     }
 
     // read a pwm actuator 2
@@ -215,14 +214,13 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto decoded = blox::ActuatorPwm();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "actuatorId: 11 actuatorValid: true "
+        CHECK(decoded.ShortDebugString() == "actuatorId: 11 "
                                             "period: 4000 setting: 204800 "
                                             "constrainedBy { "
                                             "constraints { "
                                             "balanced { balancerId: 100 granted: 204800 } "
                                             "limiting: true } "
-                                            "unconstrained: 327680 } "
-                                            "valid: true");
+                                            "unconstrained: 327680 }");
     }
 
     // run for a while

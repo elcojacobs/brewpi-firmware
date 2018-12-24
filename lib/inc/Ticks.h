@@ -77,4 +77,9 @@ public:
         calendar_time->tm_year += 1900;
         return *calendar_time;
     }
+
+    Impl& ticksImpl()
+    {
+        return impl;
+    }
 };

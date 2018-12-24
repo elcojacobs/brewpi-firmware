@@ -3,12 +3,13 @@
 #include "TempSensorOneWire.h"
 #include "Temperature.h"
 #include "blox/Block.h"
+#include "blox/FieldTags.h"
 #include "proto/cpp/TempSensorOneWire.pb.h"
 
 OneWire&
 theOneWire();
 
-class TempSensorOneWireBlock : public Block<blox_TempSensorOneWire_msgid> {
+class TempSensorOneWireBlock : public Block<BrewbloxOptions_BlockType_TempSensorOneWire> {
 private:
     TempSensorOneWire sensor;
 
@@ -20,11 +21,11 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_TempSensorOneWire newData;
+        blox_TempSensorOneWire newData = blox_TempSensorOneWire_init_zero;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
-            sensor.setAddress(OneWireAddress(newData.address));
+            sensor.setDeviceAddress(OneWireAddress(newData.address));
             sensor.setCalibration(cnl::wrap<temp_t>(newData.offset));
         }
         return res;
@@ -32,18 +33,26 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_TempSensorOneWire message;
-        message.address = sensor.getAddress();
+        blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
+        FieldTags stripped;
+
+        if (sensor.valid()) {
+            message.value = cnl::unwrap((sensor.value()));
+        } else {
+            stripped.add(blox_TempSensorOneWire_value_tag);
+        }
+
+        message.address = sensor.getDeviceAddress();
         message.offset = cnl::unwrap(sensor.getCalibration());
-        message.valid = sensor.valid();
-        message.value = cnl::unwrap((sensor.value()));
+
+        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
         blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
-        message.address = sensor.getAddress();
+        message.address = sensor.getDeviceAddress();
         message.offset = cnl::unwrap(sensor.getCalibration());
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
@@ -56,7 +65,7 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == blox_TempSensorOneWire_msgid) {
+        if (iface == BrewbloxOptions_BlockType_TempSensorOneWire) {
             return this; // me!
         }
         if (iface == cbox::interfaceId<TempSensor>()) {
