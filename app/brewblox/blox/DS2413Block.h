@@ -10,44 +10,11 @@ theOneWire();
 class DS2413Block : public Block<BrewbloxOptions_BlockType_DS2413> {
 private:
     DS2413 device;
-    struct {
-        cbox::obj_id_t A = 0;
-        cbox::obj_id_t B = 0;
-    } inUseBy;
 
 public:
     DS2413Block()
         : device(theOneWire())
     {
-    }
-
-    bool claim(const DS2413::Pio& channel, const cbox::obj_id_t& newOwner)
-    {
-        switch (channel) {
-        case DS2413::Pio::A:
-            if (inUseBy.A == 0) {
-                inUseBy.A = newOwner;
-                return true;
-            }
-            break;
-        case DS2413::Pio::B:
-            if (inUseBy.B == 0) {
-                inUseBy.B = newOwner;
-                return true;
-            }
-            break;
-        case DS2413::Pio::UNSET:
-            if (inUseBy.A == newOwner) {
-                inUseBy.A = 0;
-            }
-            if (inUseBy.B == newOwner) {
-                inUseBy.B = 0;
-            }
-            return true;
-            break;
-        }
-
-        return false;
     }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
@@ -66,15 +33,14 @@ public:
         blox_DS2413 message = blox_DS2413_init_zero;
 
         message.address = device.getDeviceAddress();
+        message.state = device.cachedState();
 
         return streamProtoTo(out, &message, blox_DS2413_fields, blox_DS2413_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_DS2413 message = blox_DS2413_init_zero;
-        message.address = device.getDeviceAddress();
-        return streamProtoTo(out, &message, blox_DS2413_fields, blox_DS2413_size);
+        return streamTo(out);
     }
 
     virtual cbox::update_t update(const cbox::update_t& now) override final

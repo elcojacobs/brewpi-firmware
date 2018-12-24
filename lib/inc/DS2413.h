@@ -111,6 +111,12 @@ public:
      */
     bool sense(Pio pio, bool& result);
 
+    /**
+     * Return cached state. Upper nibble is equal to lower nibble if valid
+     */
+
+    uint8_t cachedState() const;
+
 private:
     // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
     uint8_t latchReadMask(Pio pio) const

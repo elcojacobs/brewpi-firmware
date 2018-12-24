@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
+#include "blox/ActuatorDS2413Block.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
@@ -135,7 +136,7 @@ makeBrewBloxBox()
         {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
         {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeRef()); }},
         {DS2413Block::staticTypeId(), std::make_shared<DS2413Block>},
-    };
+        {ActuatorDS2413Block::staticTypeId(), []() { return std::make_shared<ActuatorDS2413Block>(objects); }}};
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);

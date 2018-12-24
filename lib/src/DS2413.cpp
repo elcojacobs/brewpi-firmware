@@ -31,6 +31,12 @@ DS2413::cacheIsValid() const
     return upperInverted == lower;
 }
 
+uint8_t
+DS2413::cachedState() const
+{
+    return m_cachedState & 0x0f;
+}
+
 bool
 DS2413::writeLatchBit(Pio pio,
                       bool set,

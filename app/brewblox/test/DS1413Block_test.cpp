@@ -20,9 +20,11 @@
 #include <catch.hpp>
 
 #include "BrewBloxTestBox.h"
+#include "blox/ActuatorDS2413Block.h"
 #include "blox/DS2413Block.h"
 #include "cbox/CboxPtr.h"
 #include "cbox/DataStreamIo.h"
+#include "proto/test/cpp/ActuatorDS2413.test.pb.h"
 #include "proto/test/cpp/DS2413.test.pb.h"
 #include <sstream>
 
@@ -58,7 +60,7 @@ SCENARIO("A DS2413 Block")
         {
             CHECK(testBox.lastReplyHasStatusOk());
 
-            // the value is invalid and therefore added to stripped fields to distinguish from value zero
+            // the channels are not in use yet, so only the address is sent
             CHECK(decoded.ShortDebugString() == "address: 12345678");
         }
 
@@ -68,11 +70,35 @@ SCENARIO("A DS2413 Block")
             auto devicePtr = lookup.lock();
             REQUIRE(devicePtr);
             CHECK(devicePtr->get().getDeviceAddress() == 12345678);
+        }
 
-            AND_THEN("The values that are not writable are unchanged")
+        AND_WHEN("A DS2413Actuator is created that uses one of the channels")
+        {
+            testBox.put(commands::CREATE_OBJECT);
+            testBox.put(cbox::obj_id_t(101));
+            testBox.put(uint8_t(0xFF));
+            testBox.put(ActuatorDS2413Block::staticTypeId());
+
+            auto message = blox::ActuatorDS2413();
+            message.set_hwdevice(100);
+            message.set_channel(blox::ActuatorDS2413_Channel_A);
+            message.set_state(blox::AD_State::AD_State_Active);
+
+            testBox.put(message);
+
+            testBox.processInput();
+            CHECK(testBox.lastReplyHasStatusOk());
+
+            THEN("A read of the actuator is as expected")
             {
-                // CHECK(sensorPtr->get().value() == temp_t(0));
-                // CHECK(sensorPtr->get().valid() == false);
+                testBox.put(commands::READ_OBJECT);
+                testBox.put(cbox::obj_id_t(101));
+
+                auto decoded = blox::ActuatorDS2413();
+                testBox.processInputToProto(decoded);
+
+                // in simulation, the hw device will not work and therefore the state will be unknown
+                CHECK(decoded.ShortDebugString() == "hwDevice: 100 channel: A constrainedBy { unconstrained: Active } strippedFields: 3");
             }
         }
     }

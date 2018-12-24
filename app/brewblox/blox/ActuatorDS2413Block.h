@@ -13,14 +13,15 @@
 class ActuatorDS2413Block : public Block<BrewbloxOptions_BlockType_ActuatorDS2413> {
 private:
     cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
-    cbox::CboxPtr<DS2413Block> hwDevice;
+    cbox::CboxPtr<DS2413> hwDevice;
     ActuatorDS2413 actuator;
     ActuatorDigitalConstrained constrained;
 
 public:
-    ActuatorDS2413Block(cbox::ObjectContainer& objects, uint8_t pinNr)
+    ActuatorDS2413Block(cbox::ObjectContainer& objects)
         : objectsRef(objects)
-        , actuator(std::bind(&cbox::CboxPtr<DS2413Block>::lock_as<DS2413>, hwDevice))
+        , hwDevice(objects)
+        , actuator(hwDevice.lockFunctor())
         , constrained(actuator)
     {
     }
@@ -28,20 +29,15 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
-        blox_ActuatorDS2413 newData = blox_ActuatorDS2413_init_zero;
-        cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorDS2413_fields, blox_ActuatorDS2413_size);
+        blox_ActuatorDS2413 message = blox_ActuatorDS2413_init_zero;
+        cbox::CboxError result = streamProtoFrom(dataIn, &message, blox_ActuatorDS2413_fields, blox_ActuatorDS2413_size);
 
         if (result == cbox::CboxError::OK) {
-            if (newData.channel != actuator.channel) {
-                if (auto pHw = hwDevice.lock()) {
-                    if (pHw->claim(newData.Channel)) {
-                        actuator.channel = newData.channel;
-                    }
-                }
-            }
-            actuator.invert(newData.invert);
-            setDigitalConstraints(newData.constrainedBy, constrained, objectsRef);
-            constrained.state(ActuatorDigital::State(newData.state));
+            hwDevice.setId(message.hwDevice);
+            actuator.channel(DS2413::Pio(message.channel));
+            actuator.invert(message.invert);
+            setDigitalConstraints(message.constrainedBy, constrained, objectsRef);
+            constrained.state(ActuatorDigital::State(message.state));
         }
 
         return result;
@@ -59,7 +55,8 @@ public:
             message.state = blox_AD_State(actuator.state());
         }
 
-        message.channel = blox_ActuatorDS2413_Channel(actuator.channel);
+        message.hwDevice = hwDevice.getId();
+        message.channel = blox_ActuatorDS2413_Channel(actuator.channel());
         message.invert = actuator.invert();
         getDigitalConstraints(message.constrainedBy, constrained);
 
@@ -69,21 +66,12 @@ public:
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorDS2413 message = blox_ActuatorDS2413_init_zero;
-        FieldTags stripped;
-
-        message.state = blox_AD_State(actuator.state());
-        message.channel = blox_ActuatorDS2413_Channel(actuator.channel);
-        message.invert = actuator.invert();
-
-        getDigitalConstraints(message.constrainedBy, constrained);
-
-        stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 1);
-        return streamProtoTo(out, &message, blox_ActuatorDS2413_fields, blox_ActuatorDS2413_size);
+        return streamTo(out);
     }
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
+        actuator.update();
         constrained.update(now);
         return now + 1000;
     }

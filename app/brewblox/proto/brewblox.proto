@@ -15,6 +15,7 @@ message BrewbloxOptions {
     MutexInterface = 8;
     OneWireDeviceInterface = 9;
     DS2413Interface = 10;
+    Any = 255;
     SysInfo = 256;
     OneWireBus = 258;
     Ticks = 257;
