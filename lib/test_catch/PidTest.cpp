@@ -20,7 +20,10 @@
 #include <catch.hpp>
 
 #include "ActuatorAnalogMock.h"
+#include "ActuatorDigitalConstrained.h"
+#include "ActuatorDigitalMock.h"
 #include "ActuatorOffset.h"
+#include "ActuatorPwm.h"
 #include "Pid.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
@@ -240,14 +243,15 @@ SCENARIO("PID Test with mock actuator", "[pid]")
             pid.update();
             accumulatedError += pid.error();
         }
+        pid.update();
 
         double integratorValueWithoutAntiWindup = accumulatedError * (10.0 / 2000);
         CHECK(integratorValueWithoutAntiWindup == Approx(50.0).epsilon(0.05));
         CHECK(pid.p() == Approx(10).epsilon(0.01));
-        CHECK(pid.i() == Approx(10).epsilon(0.01)); // anti windup limits this to 10
+        CHECK(pid.i() == Approx(13.33).epsilon(0.01)); // anti windup limits this to 13.33 (clipped output + proportional part / 3)
         CHECK(pid.d() == Approx(0).margin(0.01));
 
-        CHECK(actuator->setting() == Approx(20).epsilon(0.01));
+        CHECK(actuator->setting() == Approx(23.33).epsilon(0.01));
 
         setpoint->setting(19);
         accumulatedError = 0;
@@ -285,10 +289,10 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         double integratorValueWithoutAntiWindup = accumulatedError * (-10.0 / 2000);
         CHECK(integratorValueWithoutAntiWindup == Approx(50.0).epsilon(0.05));
         CHECK(pid.p() == Approx(10).epsilon(0.01));
-        CHECK(pid.i() == Approx(10).epsilon(0.01)); // anti windup limits this to 10
+        CHECK(pid.i() == Approx(13.33).epsilon(0.01)); // anti windup limits this to 13.33 (clipped output + proportional part / 3)
         CHECK(pid.d() == Approx(0).margin(0.01));
 
-        CHECK(actuator->setting() == Approx(20).epsilon(0.01));
+        CHECK(actuator->setting() == Approx(23.33).epsilon(0.01));
 
         setpoint->setting(21);
         accumulatedError = 0;
@@ -328,7 +332,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(i == 2010);
         CHECK(actuator->settingValid() == false);
 
-        AND_WHEN("The input becomes valid again, the pid and actuatore become active again")
+        AND_WHEN("The input becomes valid again, the pid and actuator become active again")
         {
             sensor->connected(true);
             pid.update();
@@ -405,5 +409,156 @@ SCENARIO("PID Test with offset actuator", "[pid]")
             CHECK(pid.active() == true);
             CHECK(targetSetpoint->valid() == true);
         }
+    }
+}
+
+SCENARIO("PID Test with PWM actuator", "[pid]")
+{
+    auto now = ticks_millis_t(0);
+    auto setpoint = std::make_shared<SetpointSimple>(20.0);
+    auto sensor = std::make_shared<TempSensorMock>(20.0);
+
+    auto pair = std::make_shared<SetpointSensorPair>(
+        [&setpoint]() { return setpoint; },
+        [&sensor]() { return sensor; });
+
+    auto mock = ActuatorDigitalMock();
+    auto constrained = std::make_shared<ActuatorDigitalConstrained>(mock);
+    auto actuator = std::make_shared<ActuatorPwm>(
+        [constrained]() { return constrained; },
+        4000);
+
+    auto pid = Pid(
+        [&pair]() { return pair; },
+        [&actuator]() { return actuator; });
+
+    pid.enabled(true);
+
+    pid.configureFilter(0, Pid::in_t(1));
+
+    auto nextPwmUpdate = now;
+    auto nextPidUpdate = now;
+
+    auto run1000seconds = [&]() {
+        auto start = now;
+        while (++now < start + 1000'000) {
+            if (now >= nextPwmUpdate) {
+                nextPwmUpdate = actuator->update(now);
+            }
+            if (now >= nextPidUpdate) {
+                pid.update();
+                nextPidUpdate = now + 1000;
+            }
+        }
+    };
+
+    WHEN("Only proportional gain is active, the output value is correct")
+    {
+        pid.kp(10);
+        pid.ti(0);
+        pid.td(0);
+
+        setpoint->setting(21);
+        sensor->value(20);
+
+        run1000seconds();
+
+        CHECK(actuator->setting() == Approx(10).margin(0.01));
+    }
+
+    WHEN("Proportional gain and integrator are enabled, the output value is correct")
+    {
+        pid.kp(10);
+        pid.ti(2000);
+        pid.td(0);
+
+        setpoint->setting(21);
+        sensor->value(20);
+
+        run1000seconds();
+
+        CHECK(pid.p() == Approx(10).epsilon(0.001));
+        CHECK(pid.i() == Approx(5).epsilon(0.05));
+        CHECK(pid.d() == 0);
+        CHECK(actuator->setting() == Approx(10.0 * (1.0 + 1000 * 1.0 / 2000)).epsilon(0.02));
+
+        run1000seconds();
+
+        CHECK(pid.p() == Approx(10).epsilon(0.001));
+        CHECK(pid.i() == Approx(10).epsilon(0.05));
+        CHECK(pid.d() == 0);
+        CHECK(actuator->setting() == Approx(10.0 * (1.0 + 2000 * 1.0 / 2000)).epsilon(0.02));
+    }
+
+    WHEN("Proportional, Integral and Derivative are enabled, the output value is correct with positive Kp")
+    {
+        pid.kp(10);
+        pid.ti(2000);
+        pid.td(200);
+
+        setpoint->setting(30);
+        sensor->value(20);
+
+        temp_t mockVal;
+        double accumulatedError = 0;
+
+        auto start = now;
+        while (now <= start + 900'000) {
+            if (now >= nextPwmUpdate) {
+                nextPwmUpdate = actuator->update(now);
+            }
+            if (now >= nextPidUpdate) {
+                mockVal = temp_t(20.0 + 9.0 * (now - start) / 900'000);
+                sensor->value(mockVal);
+                pid.update();
+                accumulatedError += pid.error();
+                nextPidUpdate = now + 1000;
+            }
+            ++now;
+        }
+
+        CHECK(mockVal == 29);
+        CHECK(pid.error() == Approx(1.2).epsilon(0.05)); // the filter introduces some delay, which is why this is not 1.0
+        CHECK(pid.p() == Approx(12).epsilon(0.05));
+        CHECK(pid.i() == Approx(accumulatedError * (10.0 / 2000)).epsilon(0.05));
+        CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.01));
+
+        CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
+    }
+
+    WHEN("Proportional, Integral and Derivative are enabled, the output value is correct with negative Kp")
+    {
+        pid.kp(-10);
+        pid.ti(2000);
+        pid.td(200);
+
+        setpoint->setting(20);
+        sensor->value(30);
+
+        temp_t mockVal;
+        double accumulatedError = 0;
+
+        auto start = now;
+        while (now <= start + 900'000) {
+            if (now >= nextPwmUpdate) {
+                nextPwmUpdate = actuator->update(now);
+            }
+            if (now >= nextPidUpdate) {
+                mockVal = temp_t(30.0 - 9.0 * (now - start) / 900'000);
+                sensor->value(mockVal);
+                pid.update();
+                accumulatedError += pid.error();
+                nextPidUpdate = now + 1000;
+            }
+            ++now;
+        }
+
+        CHECK(mockVal == 21);
+        CHECK(pid.error() == Approx(-1.2).epsilon(0.05)); // the filter introduces some delay, which is why this is not 1.0
+        CHECK(pid.p() == Approx(12).epsilon(0.05));
+        CHECK(pid.i() == Approx(accumulatedError * (-10.0 / 2000)).epsilon(0.05));
+        CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.01));
+
+        CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
     }
 }

@@ -29,7 +29,7 @@ class Pid {
 public:
     using in_t = fp12_t;
     using out_t = fp12_t;
-    using integral_t = safe_elastic_fixed_point<11, 30, int64_t>;
+    using integral_t = safe_elastic_fixed_point<29, 12, int64_t>;
     using derivative_t = safe_elastic_fixed_point<1, 23, int32_t>;
 
 private:

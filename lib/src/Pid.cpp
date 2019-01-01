@@ -49,8 +49,13 @@ Pid::update()
     m_error = m_filter.read();
     m_p = m_kp * m_error;
 
-    m_integral = (m_ti != 0) ? m_integral + m_p / m_ti : 0;
-    m_i = m_integral;
+    if (m_ti != 0) {
+        m_integral += m_p;
+        m_i = m_integral / m_ti;
+    } else {
+        m_integral = 0;
+        m_ti = 0;
+    }
 
     m_derivative = m_filter.readDerivative<decltype(m_derivative)>();
     m_d = m_kp * (m_derivative * m_td);
@@ -79,8 +84,8 @@ Pid::update()
                     // clipped to actuator min or max set in target actuator
                     // calculate anti-windup from setting instead of actual value, so it doesn't dip under the maximum
                     antiWindup = 3 * (pidResult - outputSetting); // anti windup gain is 3
-                    // make sure anti-windup is at least increment when clipping to prevent further windup
-                    antiWindup = (m_p >= 0) ? std::max(m_p / m_ti, antiWindup) : std::min(m_p / m_ti, antiWindup);
+                    // make sure anti-windup is at least m_p when clipping to prevent further windup
+                    antiWindup = (m_p >= 0) ? std::max(m_p, antiWindup) : std::min(m_p, antiWindup);
                 } else {
 
                     // Actuator could be not reaching set value due to physics or limits in its target actuator
@@ -103,11 +108,11 @@ Pid::update()
 
                 // make sure integral does not cross zero and does not increase by anti-windup
 
-                decltype(m_integral) newIntegral = m_integral - antiWindup;
+                integral_t newIntegral = m_integral - antiWindup;
                 if (m_integral >= 0) {
-                    m_integral = std::clamp(newIntegral, decltype(m_integral)(0), m_integral);
+                    m_integral = std::clamp(newIntegral, integral_t(0), m_integral);
                 } else {
-                    m_integral = std::clamp(newIntegral, m_integral, decltype(m_integral)(0));
+                    m_integral = std::clamp(newIntegral, m_integral, integral_t(0));
                 }
             }
         }
