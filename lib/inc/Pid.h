@@ -46,7 +46,7 @@ private:
     integral_t m_integral = integral_t{0};
     derivative_t m_derivative = derivative_t{0};
 
-    uint8_t m_inputFailureCount = 0;
+    uint8_t m_inputFailureCount = 255; // force a reset on init
 
     // settings
     in_t m_kp = in_t{0};        // proportional gain

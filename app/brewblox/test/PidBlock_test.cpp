@@ -134,17 +134,17 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     CHECK(testBox.lastReplyHasStatusOk());
 
     CHECK(cnl::wrap<Pid::out_t>(decoded.p()) == Approx(10.0).epsilon(0.01));
-    CHECK(cnl::wrap<Pid::out_t>(decoded.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.01));
     CHECK(cnl::wrap<Pid::out_t>(decoded.d()) == 0);
-    CHECK(cnl::wrap<Pid::out_t>(decoded.outputvalue()) == Approx(15.0).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.outputvalue()) == Approx(15.0).epsilon(0.01));
 
     // only nonzero values are shown in the debug string
     CHECK(decoded.ShortDebugString() == "inputId: 102 outputId: 103 "
                                         "inputValue: 81920 inputSetting: 86016 "
-                                        "outputValue: 60990 outputSetting: 60990 "
+                                        "outputValue: 61425 outputSetting: 61425 "
                                         "filterThreshold: 4096 "
                                         "enabled: true active: true "
                                         "kp: 40960 ti: 2000 td: 200 "
-                                        "p: 40950 i: 20040 "
-                                        "error: 4095 integral: 8388607 derivative: -1");
+                                        "p: 40950 i: 20475 "
+                                        "error: 4095 integral: 8388607");
 }

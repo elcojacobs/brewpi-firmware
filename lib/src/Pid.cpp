@@ -29,6 +29,9 @@ Pid::update()
             active(true);
         }
         auto inputError = input->setting() - input->value();
+        if (m_inputFailureCount >= 10) {
+            m_filter.reset(inputError);
+        }
         m_filter.add(inputError);
         m_inputFailureCount = 0;
     } else {
