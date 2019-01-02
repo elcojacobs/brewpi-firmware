@@ -119,9 +119,9 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
 
-    // update 100 times (PID updates every second, t is in ms)
+    // update 1000 seconds (PID updates every second, t is in ms)
     uint32_t t = 0;
-    for (; t < 1000000; ++t) {
+    for (; t < 1000'000; ++t) {
         testBox.update(t);
     }
 
@@ -146,5 +146,5 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
                                         "enabled: true active: true "
                                         "kp: 40960 ti: 2000 td: 200 "
                                         "p: 40950 i: 20475 "
-                                        "error: 4095 integral: 8388607");
+                                        "error: 4095 integral: 40950000");
 }
