@@ -87,6 +87,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
 
         CHECK(pid.p() == Approx(10).epsilon(0.001));
         CHECK(pid.i() == Approx(10).epsilon(0.001));
+        CHECK(pid.integral() == Approx(2000).epsilon(0.001));
         CHECK(pid.d() == 0);
         CHECK(actuator->setting() == Approx(10.0 * (1.0 + 2000 * 1.0 / 2000)).epsilon(0.001));
     }
@@ -113,6 +114,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(pid.error() == Approx(1.23).epsilon(0.01)); // the filter introduces some delay, which is why this is not 1.0
         CHECK(pid.p() == Approx(12.3).epsilon(0.01));
         CHECK(pid.i() == Approx(accumulatedError * (10.0 / 2000)).epsilon(0.001));
+        CHECK(pid.integral() == Approx(accumulatedError).epsilon(0.001));
         CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.001));
 
         CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
@@ -140,6 +142,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(pid.error() == Approx(-1.23).epsilon(0.01)); // the filter introduces some delay, which is why this is not 1.0
         CHECK(pid.p() == Approx(12.3).epsilon(0.01));
         CHECK(pid.i() == Approx(accumulatedError * (-10.0 / 2000)).epsilon(0.001));
+        CHECK(pid.integral() == Approx(accumulatedError).epsilon(0.001));
         CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.001));
 
         CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
@@ -166,6 +169,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(integratorValueWithoutAntiWindup == Approx(50.0).epsilon(0.01));
         CHECK(pid.p() == Approx(10).epsilon(0.01));
         CHECK(pid.i() == Approx(10).epsilon(0.01)); // anti windup limits this to 10
+        CHECK(pid.integral() == Approx(2000).epsilon(0.001));
         CHECK(pid.d() == Approx(0).margin(0.01));
 
         CHECK(actuator->setting() == Approx(20).epsilon(0.01));
@@ -181,6 +185,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(integratorValueWithoutAntiWindup == Approx(-50.0).epsilon(0.01));
         CHECK(pid.p() == Approx(-10).epsilon(0.01));
         CHECK(pid.i() == Approx(0).margin(0.01)); // anti windup limits this to 0
+        CHECK(pid.integral() == Approx(0).margin(0.01));
         CHECK(pid.d() == Approx(0).margin(0.01));
 
         CHECK(actuator->setting() == Approx(0).margin(0.01));
@@ -222,6 +227,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         CHECK(integratorValueWithoutAntiWindup == Approx(-50.0).epsilon(0.01));
         CHECK(pid.p() == Approx(-10).epsilon(0.01));
         CHECK(pid.i() == Approx(0).margin(0.01)); // anti windup limits this to 0
+        CHECK(pid.integral() == Approx(0).margin(0.01));
         CHECK(pid.d() == Approx(0).margin(0.01));
 
         CHECK(actuator->setting() == Approx(0).margin(0.01));
@@ -248,7 +254,7 @@ SCENARIO("PID Test with mock actuator", "[pid]")
         double integratorValueWithoutAntiWindup = accumulatedError * (10.0 / 2000);
         CHECK(integratorValueWithoutAntiWindup == Approx(50.0).epsilon(0.01));
         CHECK(pid.p() == Approx(10).epsilon(0.01));
-        CHECK(pid.i() == Approx(13.33).epsilon(0.01)); // anti windup limits this to 13.33 (clipped output + proportional part / 3)
+        CHECK(pid.i() == Approx(13.33).epsilon(0.01)); // anti windup limits this to 13.33 (clipped output + error / 3)
         CHECK(pid.d() == Approx(0).margin(0.01));
 
         CHECK(actuator->setting() == Approx(23.33).epsilon(0.01));

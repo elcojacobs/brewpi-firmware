@@ -98,7 +98,7 @@ Pid::update()
 
                         // Anti windup gain is 3
                         antiWindup = 3 * (pidResult - achievedValue);
-
+ 
                         // Disable anti-windup if integral part dominates. But only if it counteracts p.
                         if (m_i < 0 && m_p < 0 && m_i < 3 * m_p) {
                             antiWindup = 0;
