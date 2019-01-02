@@ -39,8 +39,8 @@ ENV PATH /usr/local/gcc-arm-embedded/bin:$PATH
 
 # preesed tzdata to prevent interactive install prompt
 RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
-    echo "tzdata tzdata/Zones/Europe select Amsterdam" >> /tmp/preseed.txt; \
-    debconf-set-selections /tmp/preseed.txt
+  echo "tzdata tzdata/Zones/Europe select Amsterdam" >> /tmp/preseed.txt; \
+  debconf-set-selections /tmp/preseed.txt
 
 # install various packages needed for the build, testing, or for building the dependencies
 RUN apt-get update -q \
@@ -53,14 +53,14 @@ RUN rm -rf /etc/timezone \
   && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
   && dpkg-reconfigure --frontend noninteractive tzdata
 
-# and install protobuf python package (used by nanopb)
-RUN pip install protobuf
+# and install protobuf python package (used by nanopb), and pyserial (used by program-dfu)
+RUN pip install protobuf pyserial
 
 # download and compile boost and install as system includes (/usr/local)
 RUN mkdir -p /boost && curl -sSL http://downloads.sourceforge.net/project/boost/boost/1.65.0/boost_1_65_0.tar.gz | tar -xz -C /boost \
- && cd /boost/boost_1_65_0 \
- && ./bootstrap.sh \
- && ./b2 --with-thread --with-system --with-program_options --with-random --with-regex --threading=single link=static
+  && cd /boost/boost_1_65_0 \
+  && ./bootstrap.sh \
+  && ./b2 --with-thread --with-system --with-program_options --with-random --with-regex --threading=single link=static
 
 ENV BOOST_ROOT=/boost/boost_1_65_0
 
