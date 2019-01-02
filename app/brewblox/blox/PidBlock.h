@@ -97,7 +97,7 @@ public:
         message.i = cnl::unwrap(pid.i());
         message.d = cnl::unwrap(pid.d());
         message.error = cnl::unwrap(pid.error());
-        message.integral = cnl::unwrap(Pid::out_t(pid.integral()));
+        message.integral = cnl::unwrap(pid.integral());
         message.derivative = cnl::unwrap(pid.derivative());
 
         stripped.copyToMessage(message.strippedFields, message.strippedFields_count, 4);

@@ -119,9 +119,9 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
 
-    // update 100 times (PID updates every second, t is in ms)
+    // update 1000 seconds (PID updates every second, t is in ms)
     uint32_t t = 0;
-    for (; t < 1000000; ++t) {
+    for (; t < 1000'000; ++t) {
         testBox.update(t);
     }
 
@@ -134,17 +134,17 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     CHECK(testBox.lastReplyHasStatusOk());
 
     CHECK(cnl::wrap<Pid::out_t>(decoded.p()) == Approx(10.0).epsilon(0.01));
-    CHECK(cnl::wrap<Pid::out_t>(decoded.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.01));
     CHECK(cnl::wrap<Pid::out_t>(decoded.d()) == 0);
-    CHECK(cnl::wrap<Pid::out_t>(decoded.outputvalue()) == Approx(15.0).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.outputvalue()) == Approx(15.0).epsilon(0.01));
 
     // only nonzero values are shown in the debug string
     CHECK(decoded.ShortDebugString() == "inputId: 102 outputId: 103 "
                                         "inputValue: 81920 inputSetting: 86016 "
-                                        "outputValue: 60518 outputSetting: 60518 "
+                                        "outputValue: 61425 outputSetting: 61425 "
                                         "filterThreshold: 4096 "
                                         "enabled: true active: true "
                                         "kp: 40960 ti: 2000 td: 200 "
-                                        "p: 40950 i: 19568 "
-                                        "error: 4095 integral: 19568 derivative: -1");
+                                        "p: 40950 i: 20475 "
+                                        "error: 4095 integral: 4096000");
 }
